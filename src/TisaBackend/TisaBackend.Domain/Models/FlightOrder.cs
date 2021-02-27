@@ -3,7 +3,7 @@
     public class FlightOrder
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public int Username { get; set; }
         public int FlightId { get; set; }
         public int DepartmentId { get; set; }
         public int SeatsQuantity { get; set; }
