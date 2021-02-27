@@ -1,24 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using TisaBackend.DAL.Auth;
 
 namespace TisaBackend.DAL
 {
-    public class TisaContext : DbContext
+    public class TisaContext : IdentityDbContext<User>
     {
-        private readonly IConfiguration _configuration;
-
-        public TisaContext(IConfiguration configuration)
+        public TisaContext(DbContextOptions<TisaContext> options) : base(options)
         {
-            _configuration = configuration;
+
         }
 
         #region DBSets
 
         #endregion
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
-        }
     }
 }
