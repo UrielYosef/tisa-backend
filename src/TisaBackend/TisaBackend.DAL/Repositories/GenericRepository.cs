@@ -42,12 +42,12 @@ namespace TisaBackend.DAL.Repositories
             return await Context.Set<T>().FindAsync(id);
         }
 
-        public async Task RemoveAsync(T entity)
+        public void Remove(T entity)
         {
             Context.Set<T>().Remove(entity);
         }
 
-        public async Task RemoveRangeAsync(IEnumerable<T> entities)
+        public void RemoveRange(IEnumerable<T> entities)
         {
             Context.Set<T>().RemoveRange(entities);
         }
