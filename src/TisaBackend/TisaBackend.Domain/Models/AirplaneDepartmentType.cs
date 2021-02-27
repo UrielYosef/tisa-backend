@@ -1,8 +1,10 @@
-﻿namespace TisaBackend.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TisaBackend.Domain.Models
 {
     public class AirplaneDepartmentType
     {
-        public int Id { get; set; }
+        [Key]
         public string Name { get; set; }
     }
 }

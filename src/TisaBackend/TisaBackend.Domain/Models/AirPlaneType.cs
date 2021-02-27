@@ -1,8 +1,13 @@
-﻿namespace TisaBackend.Domain.Models
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace TisaBackend.Domain.Models
 {
-    public class AirPlaneType
+    public class AirplaneType
     {
-        public int Id { get; set; }
+        [Key]
         public string Type { get; set; }
+
+        public IList<AirplaneDepartmentSeats> AirplaneDepartmentSeats { get; set; }
     }
 }

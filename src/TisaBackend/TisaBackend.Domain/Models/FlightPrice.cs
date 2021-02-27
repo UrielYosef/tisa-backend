@@ -4,9 +4,8 @@
     {
         public int PriceInDollars { get; set; }
         public int FlightId { get; set; }
-        public int DepartmentId { get; set; }
+        public string DepartmentType { get; set; }
 
         public Flight Flight { get; set; }
-        public AirplaneDepartmentType AirplaneDepartmentType { get; set; }
     }
 }

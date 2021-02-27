@@ -2,11 +2,9 @@
 {
     public class AirplaneDepartmentSeats
     {
+        public int Id { get; set; }
         public int SeatsQuantity { get; set; }
-        public int AirPlaneTypeId { get; set; }
-        public int DepartmentId { get; set; }
-
-        public AirPlaneType AirPlaneType { get; set; }
-        public AirplaneDepartmentType AirplaneDepartmentType { get; set; }
+        public string AirplaneType { get; set; }
+        public string DepartmentType { get; set; }
     }
 }

@@ -9,10 +9,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TisaBackend.BL.Services;
 using TisaBackend.DAL;
 using TisaBackend.DAL.Auth;
 using TisaBackend.DAL.Repositories;
 using TisaBackend.Domain.Interfaces;
+using TisaBackend.Domain.Interfaces.BL;
+using TisaBackend.Domain.Interfaces.DAL;
 
 namespace TisaBackend.WebApi
 {
@@ -31,8 +34,16 @@ namespace TisaBackend.WebApi
             services.AddControllers();
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            
+            services.AddScoped<IAirportRepository, AirportRepository>();
+            services.AddScoped<IAirlineRepository, AirlineRepository>();
+            services.AddScoped<IFlightRepository, FlightRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IAirportService, AirportService>();
+            services.AddScoped<IAirplaneTypeService, AirplaneTypeService>();
+
+            services.AddScoped<IAirlineService, AirlineService>();
+            services.AddScoped<IFlightService, FlightService>();
 
             ConfigureDal(services);
             
