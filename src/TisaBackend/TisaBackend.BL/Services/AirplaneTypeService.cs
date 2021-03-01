@@ -25,17 +25,5 @@ namespace TisaBackend.BL.Services
             await _unitOfWork.AirplaneTypeRepository.AddAsync(airplaneType);
             await _unitOfWork.SaveChangesAsync();
         }
-
-        public async Task AddAirplaneDepartmentTypeAsync(AirplaneDepartmentType airplaneDepartmentType)
-        {
-            await _unitOfWork.AirplaneDepartmentTypeRepository.AddAsync(airplaneDepartmentType);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task AddAirplaneDepartmentSeatsAsync(AirplaneDepartmentSeats airplaneDepartmentSeats)
-        {
-            await _unitOfWork.AirplaneDepartmentSeatsRepository.AddAsync(airplaneDepartmentSeats);
-            await _unitOfWork.SaveChangesAsync();
-        }
     }
 }

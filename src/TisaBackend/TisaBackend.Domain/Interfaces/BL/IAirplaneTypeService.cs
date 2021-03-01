@@ -8,7 +8,5 @@ namespace TisaBackend.Domain.Interfaces.BL
     {
         Task<IEnumerable<AirplaneType>> GetAirplaneTypesAsync();
         Task AddAirplaneTypeAsync(AirplaneType airplaneType);
-        Task AddAirplaneDepartmentTypeAsync(AirplaneDepartmentType airplaneDepartmentType);
-        Task AddAirplaneDepartmentSeatsAsync(AirplaneDepartmentSeats airplaneDepartmentSeats);
     }
 }

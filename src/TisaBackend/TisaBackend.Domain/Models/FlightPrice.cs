@@ -1,4 +1,6 @@
-﻿namespace TisaBackend.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TisaBackend.Domain.Models
 {
     public class FlightPrice
     {

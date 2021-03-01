@@ -9,9 +9,6 @@ namespace TisaBackend.Domain.Interfaces
     {
         IAirportRepository AirportRepository { get; set; }
         IGenericRepository<AirplaneType> AirplaneTypeRepository { get; set; }
-        IGenericRepository<AirplaneDepartmentType> AirplaneDepartmentTypeRepository { get; set; }
-        IGenericRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
-
 
         IAirlineRepository AirlineRepository { get; set; }
         IGenericRepository<Airplane> AirplaneRepository { get; set; }

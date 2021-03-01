@@ -11,19 +11,25 @@ namespace TisaBackend.DAL
 
         public IAirportRepository AirportRepository { get; set; }
         public IGenericRepository<AirplaneType> AirplaneTypeRepository { get; set; }
-        public IGenericRepository<AirplaneDepartmentType> AirplaneDepartmentTypeRepository { get; set; }
-        public IGenericRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
-
 
         public IAirlineRepository AirlineRepository { get; set; }
         public IGenericRepository<Airplane> AirplaneRepository { get; set; }
         public IFlightRepository FlightRepository { get; set; }
 
-        public UnitOfWork(TisaContext context, IAirportRepository airportRepository)
+        public UnitOfWork(TisaContext context,
+            IAirportRepository airportRepository,
+            IGenericRepository<AirplaneType> airplaneTypeRepository,
+            IAirlineRepository airlineRepository,
+            IGenericRepository<Airplane> airplaneRepository,
+            IFlightRepository flightRepository)
         { 
             _context = context;
 
             AirportRepository = airportRepository;
+            AirplaneTypeRepository = airplaneTypeRepository;
+            AirlineRepository = airlineRepository;
+            AirplaneRepository = airplaneRepository;
+            FlightRepository = flightRepository;
         }
 
         public async Task<int> SaveChangesAsync()
