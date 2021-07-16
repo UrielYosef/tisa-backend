@@ -7,29 +7,36 @@ namespace TisaBackend.DAL
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly TisaContext _context;
-
         public IAirportRepository AirportRepository { get; set; }
         public IGenericRepository<AirplaneType> AirplaneTypeRepository { get; set; }
+        public IGenericRepository<DepartmentType> DepartmentTypeRepository { get; set; }
+        public IGenericRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
 
         public IAirlineRepository AirlineRepository { get; set; }
         public IGenericRepository<Airplane> AirplaneRepository { get; set; }
         public IFlightRepository FlightRepository { get; set; }
 
+        private readonly TisaContext _context;
+
         public UnitOfWork(TisaContext context,
-            IAirportRepository airportRepository,
             IGenericRepository<AirplaneType> airplaneTypeRepository,
-            IAirlineRepository airlineRepository,
+            IGenericRepository<DepartmentType> departmentTypeRepository,
+            IGenericRepository<AirplaneDepartmentSeats> airplaneDepartmentSeatsRepository,
             IGenericRepository<Airplane> airplaneRepository,
+            IAirlineRepository airlineRepository,
+            IAirportRepository airportRepository,
             IFlightRepository flightRepository)
         { 
             _context = context;
 
-            AirportRepository = airportRepository;
             AirplaneTypeRepository = airplaneTypeRepository;
+            DepartmentTypeRepository = departmentTypeRepository;
+            AirplaneDepartmentSeatsRepository = airplaneDepartmentSeatsRepository;
+
             AirlineRepository = airlineRepository;
             AirplaneRepository = airplaneRepository;
             FlightRepository = flightRepository;
+            AirportRepository = airportRepository;
         }
 
         public async Task<int> SaveChangesAsync()

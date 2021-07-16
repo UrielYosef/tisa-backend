@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using TisaBackend.BL.Services;
 using TisaBackend.DAL;
 using TisaBackend.DAL.Auth;
 using TisaBackend.DAL.Repositories;
+using TisaBackend.Domain;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
@@ -30,8 +32,14 @@ namespace TisaBackend.WebApi
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        { 
-            services.AddControllers();
+        {
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling =
+                            Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    }
+            );
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IAirportRepository, AirportRepository>();
@@ -80,7 +88,6 @@ namespace TisaBackend.WebApi
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-
                 // Adding Jwt Bearer  
                 .AddJwtBearer(options =>
                 {

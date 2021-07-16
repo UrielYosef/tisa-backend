@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace TisaBackend.DAL.Migrations
 {
-    public partial class initital : Migration
+    public partial class tables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,49 +12,26 @@ namespace TisaBackend.DAL.Migrations
                 name: "Airlines",
                 columns: table => new
                 {
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(256)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Airlines", x => x.Name);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AirplaneDepartmentTypes",
-                columns: table => new
-                {
-                    Name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AirplaneDepartmentTypes", x => x.Name);
+                    table.PrimaryKey("PK_Airlines", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "AirplaneTypes",
                 columns: table => new
                 {
-                    Type = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AirplaneTypes", x => x.Type);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Airports",
-                columns: table => new
-                {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    AlphaCode = table.Column<string>(type: "text", nullable: true),
-                    Country = table.Column<string>(type: "text", nullable: true),
-                    City = table.Column<string>(type: "text", nullable: true)
+                    Name = table.Column<string>(type: "character varying(256)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Airports", x => x.Id);
+                    table.PrimaryKey("PK_AirplaneTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,6 +53,8 @@ namespace TisaBackend.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: true),
+                    LastName = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -97,25 +76,16 @@ namespace TisaBackend.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AirplaneDepartmentSeats",
+                name: "DepartmentTypes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    SeatsQuantity = table.Column<int>(type: "integer", nullable: false),
-                    AirplaneType = table.Column<string>(type: "text", nullable: true),
-                    DepartmentType = table.Column<string>(type: "text", nullable: true),
-                    AirplaneTypeType = table.Column<string>(type: "text", nullable: true)
+                    Name = table.Column<string>(type: "character varying(256)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AirplaneDepartmentSeats", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AirplaneDepartmentSeats_AirplaneTypes_AirplaneTypeType",
-                        column: x => x.AirplaneTypeType,
-                        principalTable: "AirplaneTypes",
-                        principalColumn: "Type",
-                        onDelete: ReferentialAction.Restrict);
+                    table.PrimaryKey("PK_DepartmentTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -124,8 +94,8 @@ namespace TisaBackend.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AirplaneTypeId = table.Column<string>(type: "text", nullable: true),
-                    AirlineId = table.Column<string>(type: "text", nullable: true)
+                    AirplaneTypeId = table.Column<int>(type: "integer", nullable: false),
+                    AirlineId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -134,14 +104,14 @@ namespace TisaBackend.DAL.Migrations
                         name: "FK_Airplanes_Airlines_AirlineId",
                         column: x => x.AirlineId,
                         principalTable: "Airlines",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Airplanes_AirplaneTypes_AirplaneTypeId",
                         column: x => x.AirplaneTypeId,
                         principalTable: "AirplaneTypes",
-                        principalColumn: "Type",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -250,10 +220,42 @@ namespace TisaBackend.DAL.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "AirplaneDepartmentSeats",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AirplaneTypeId = table.Column<int>(type: "integer", nullable: false),
+                    DepartmentTypeId = table.Column<int>(type: "integer", nullable: false),
+                    SeatsQuantity = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AirplaneDepartmentSeats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AirplaneDepartmentSeats_AirplaneTypes_AirplaneTypeId",
+                        column: x => x.AirplaneTypeId,
+                        principalTable: "AirplaneTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AirplaneDepartmentSeats_DepartmentTypes_DepartmentTypeId",
+                        column: x => x.DepartmentTypeId,
+                        principalTable: "DepartmentTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_AirplaneDepartmentSeats_AirplaneTypeType",
+                name: "IX_AirplaneDepartmentSeats_AirplaneTypeId",
                 table: "AirplaneDepartmentSeats",
-                column: "AirplaneTypeType");
+                column: "AirplaneTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AirplaneDepartmentSeats_DepartmentTypeId",
+                table: "AirplaneDepartmentSeats",
+                column: "DepartmentTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Airplanes_AirlineId",
@@ -309,13 +311,7 @@ namespace TisaBackend.DAL.Migrations
                 name: "AirplaneDepartmentSeats");
 
             migrationBuilder.DropTable(
-                name: "AirplaneDepartmentTypes");
-
-            migrationBuilder.DropTable(
                 name: "Airplanes");
-
-            migrationBuilder.DropTable(
-                name: "Airports");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -331,6 +327,9 @@ namespace TisaBackend.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "DepartmentTypes");
 
             migrationBuilder.DropTable(
                 name: "Airlines");

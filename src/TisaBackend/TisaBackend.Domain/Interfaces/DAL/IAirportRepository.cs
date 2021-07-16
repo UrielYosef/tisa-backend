@@ -6,6 +6,6 @@ namespace TisaBackend.Domain.Interfaces.DAL
 {
     public interface IAirportRepository : IGenericRepository<Airport>
     {
-        Task<IList<Airport>> GetAirportsAsync(string filter);
+        //Task<IList<Airport>> GetAirportsAsync(string filter);
     }
 }

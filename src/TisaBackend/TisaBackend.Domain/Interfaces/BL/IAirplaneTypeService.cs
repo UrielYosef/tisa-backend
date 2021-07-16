@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.Domain.Interfaces.BL
@@ -8,5 +8,7 @@ namespace TisaBackend.Domain.Interfaces.BL
     {
         Task<IEnumerable<AirplaneType>> GetAirplaneTypesAsync();
         Task AddAirplaneTypeAsync(AirplaneType airplaneType);
+        Task AddDepartmentTypeAsync(DepartmentType departmentType);
+        Task AddSeatsToAirplaneTypeDepartmentAsync(AirplaneDepartmentSeats airplaneDepartmentSeats);
     }
 }

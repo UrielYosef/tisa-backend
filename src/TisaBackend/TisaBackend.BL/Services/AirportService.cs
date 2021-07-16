@@ -17,7 +17,8 @@ namespace TisaBackend.BL.Services
 
         public async Task<IList<Airport>> GetAirportsAsync(string filter)
         {
-            return await _unitOfWork.AirportRepository.GetAirportsAsync(filter?.ToLower());
+            //return await _unitOfWork.AirportRepository.GetAirportsAsync(filter?.ToLower());
+            return null;
         }
 
         public async Task AddAirportAsync(Airport airport)

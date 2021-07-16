@@ -18,8 +18,22 @@ namespace TisaBackend.WebApi.Controllers
             _airlineService = airlineService;
         }
 
-        [Authorize(Roles = UserRoles.Admin)]
+        [HttpGet]
+        [Route("All")]
+        public async Task<IActionResult> GetAllAirlinesAsync()
+        {
+            return Ok(await _airlineService.GetAllAirlinesAsync());
+        }
+
+        [HttpGet]
+        [Route("{airlineId}")]
+        public async Task<IActionResult> GetAirlineAirplanesAsync([FromRoute] int airlineId)
+        {
+            return Ok(await _airlineService.GetAirlineAirplanesAsync(airlineId));
+        }
+
         [HttpPut]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> AddAirlineAsync([FromBody] Airline airline)
         {
             await _airlineService.AddAirlineAsync(airline);
@@ -27,9 +41,9 @@ namespace TisaBackend.WebApi.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = UserRoles.AirlineAgent)]
-        [Route("Airplane")]
         [HttpPut]
+        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.AirlineManager + "," + UserRoles.AirlineAgent)]
+        [Route("Airplane")]
         public async Task<IActionResult> AddAirplaneAsync([FromBody] Airplane airplane)
         {
             await _airlineService.AddAirplaneAsync(airplane);

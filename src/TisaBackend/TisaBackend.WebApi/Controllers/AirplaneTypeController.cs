@@ -18,8 +18,8 @@ namespace TisaBackend.WebApi.Controllers
             _airplaneTypeService = airplaneTypeService;
         }
 
-        [Authorize(Roles = UserRoles.Admin)]
         [HttpGet]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> GetAirplaneTypesAsync()
         {
             var airplaneTypes = await _airplaneTypeService.GetAirplaneTypesAsync();
@@ -27,11 +27,32 @@ namespace TisaBackend.WebApi.Controllers
             return Ok(airplaneTypes);
         }
 
-        [Authorize(Roles = UserRoles.Admin)]
         [HttpPut]
-        public async Task<IActionResult> AddAirplaneTypesAsync([FromBody] AirplaneType airplaneType)
+        [Authorize(Roles = UserRoles.Admin)]
+        [Route("AirplaneType")]
+        public async Task<IActionResult> AddAirplaneTypeAsync([FromBody] AirplaneType airplaneType)
         {
             await _airplaneTypeService.AddAirplaneTypeAsync(airplaneType);
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Authorize(Roles = UserRoles.Admin)]
+        [Route("DepartmentType")]
+        public async Task<IActionResult> AddDepartmentTypeAsync([FromBody] DepartmentType departmentType)
+        {
+            await _airplaneTypeService.AddDepartmentTypeAsync(departmentType);
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Authorize(Roles = UserRoles.Admin)]
+        [Route("AirplaneDepartmentSeats")]
+        public async Task<IActionResult> AddSeatsToAirplaneTypeDepartmentAsync([FromBody] AirplaneDepartmentSeats airplaneDepartmentSeats)
+        {
+            await _airplaneTypeService.AddSeatsToAirplaneTypeDepartmentAsync(airplaneDepartmentSeats);
 
             return Ok();
         }
