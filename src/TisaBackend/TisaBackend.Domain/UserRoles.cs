@@ -3,6 +3,7 @@
     public class UserRoles
     {
         public const string Admin = "Admin";
+        public const string AirlineManager = "AirlineManager";
         public const string AirlineAgent = "AirlineAgent";
         public const string Client = "Client";
     }

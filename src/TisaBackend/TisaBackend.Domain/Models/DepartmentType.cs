@@ -1,6 +1,6 @@
 ﻿namespace TisaBackend.Domain.Models
 {
-    public class AirplaneDepartmentType
+    public class DepartmentType
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -168,6 +168,12 @@ namespace TisaBackend.DAL.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -211,6 +217,98 @@ namespace TisaBackend.DAL.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.Airline", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Airlines");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.Airplane", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int>("AirlineId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AirplaneTypeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AirlineId");
+
+                    b.HasIndex("AirplaneTypeId");
+
+                    b.ToTable("Airplanes");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.AirplaneDepartmentSeats", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int>("AirplaneTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DepartmentTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SeatsQuantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AirplaneTypeId");
+
+                    b.HasIndex("DepartmentTypeId");
+
+                    b.ToTable("AirplaneDepartmentSeats");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.AirplaneType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AirplaneTypes");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.DepartmentType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DepartmentTypes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -262,6 +360,49 @@ namespace TisaBackend.DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.Airplane", b =>
+                {
+                    b.HasOne("TisaBackend.Domain.Models.Airline", "Airline")
+                        .WithMany("Airplanes")
+                        .HasForeignKey("AirlineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TisaBackend.Domain.Models.AirplaneType", "AirplaneType")
+                        .WithMany()
+                        .HasForeignKey("AirplaneTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Airline");
+
+                    b.Navigation("AirplaneType");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.AirplaneDepartmentSeats", b =>
+                {
+                    b.HasOne("TisaBackend.Domain.Models.AirplaneType", "AirplaneType")
+                        .WithMany()
+                        .HasForeignKey("AirplaneTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TisaBackend.Domain.Models.DepartmentType", "DepartmentType")
+                        .WithMany()
+                        .HasForeignKey("DepartmentTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AirplaneType");
+
+                    b.Navigation("DepartmentType");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.Airline", b =>
+                {
+                    b.Navigation("Airplanes");
                 });
 #pragma warning restore 612, 618
         }
