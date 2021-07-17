@@ -7,7 +7,7 @@ using TisaBackend.Domain.Models;
 
 namespace TisaBackend.DAL.Repositories
 {
-    public class AirportRepository : GenericRepository<Airport>, IAirportRepository
+    public class AirportRepository : Repository<Airport>, IAirportRepository
     {
         public AirportRepository(TisaContext context) : base(context)
         {

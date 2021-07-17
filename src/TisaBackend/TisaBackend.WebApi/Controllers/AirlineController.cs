@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TisaBackend.Domain;
@@ -27,7 +27,8 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("Airplanes/{airlineId}")]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airlineId}/Airplanes")]
         public async Task<IActionResult> GetAirlineAirplanesAsync([FromRoute] int airlineId)
         {
             return Ok(await _airlineService.GetAirlineAirplanesAsync(airlineId));
@@ -44,7 +45,7 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpPut]
         [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
-        [Route("Airplanes/{airlineId}")]
+        [Route("{airlineId}/Airplanes")]
         public async Task<IActionResult> UpdateAirplanesAsync([FromBody] IList<AirplaneData> airplanesData, int airlineId)
         {
             await _airlineService.UpdateAirplanesAsync(airlineId, airplanesData);

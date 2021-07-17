@@ -10,7 +10,7 @@ using TisaBackend.DAL;
 namespace TisaBackend.DAL.Migrations
 {
     [DbContext(typeof(TisaContext))]
-    [Migration("20210717080901_tables")]
+    [Migration("20210717160554_tables")]
     partial class tables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -222,7 +222,7 @@ namespace TisaBackend.DAL.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("AirlineManagerUser")
+                    b.Property<string>("AirlineManagerEmail")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")

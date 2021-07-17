@@ -220,7 +220,7 @@ namespace TisaBackend.DAL.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("AirlineManagerUser")
+                    b.Property<string>("AirlineManagerEmail")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")

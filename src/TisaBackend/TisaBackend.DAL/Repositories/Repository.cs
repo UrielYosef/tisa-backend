@@ -8,11 +8,11 @@ using TisaBackend.Domain.Interfaces;
 
 namespace TisaBackend.DAL.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
         protected TisaContext Context;
 
-        public GenericRepository(TisaContext context)
+        public Repository(TisaContext context)
         {
             Context = context;
         }

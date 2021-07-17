@@ -7,7 +7,7 @@ namespace TisaBackend.Domain.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string AirlineManagerUser { get; set; } 
+        public string AirlineManagerEmail { get; set; } 
 
         public IList<Airplane> Airplanes { get; set; }
     }

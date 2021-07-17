@@ -4,6 +4,6 @@ namespace TisaBackend.Domain.Interfaces
 {
     public interface IUserService
     {
-        Task<string> ProvideAirlineManagerUser(string email);
+        Task ProvideAirlineManagerUser(string email);
     }
 }

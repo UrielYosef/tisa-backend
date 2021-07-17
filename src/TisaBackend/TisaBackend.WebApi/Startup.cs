@@ -1,11 +1,10 @@
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,6 @@ using Microsoft.IdentityModel.Tokens;
 using TisaBackend.BL.Services;
 using TisaBackend.DAL;
 using TisaBackend.DAL.Repositories;
-using TisaBackend.Domain;
 using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
@@ -40,8 +38,16 @@ namespace TisaBackend.WebApi
                             Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                     }
             );
+
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
+
             //TODO: check registration types
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IAirportRepository, AirportRepository>();
             services.AddScoped<IAirlineRepository, AirlineRepository>();
             services.AddScoped<IFlightRepository, FlightRepository>();
@@ -66,7 +72,7 @@ namespace TisaBackend.WebApi
         {
             //Entity Framework
             services.AddDbContext<TisaContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
         }
 
         public void ConfigureAuth(IServiceCollection services)
@@ -150,6 +156,8 @@ namespace TisaBackend.WebApi
 
             // use url routing based on controllers functions (to find them)
             app.UseRouting();
+
+            app.UseCors("MyPolicy");
 
             // who are you?
             app.UseAuthentication();

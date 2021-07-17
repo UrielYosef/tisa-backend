@@ -8,25 +8,25 @@ namespace TisaBackend.DAL
     public class UnitOfWork : IUnitOfWork
     {
         public IAirportRepository AirportRepository { get; set; }
-        public IGenericRepository<AirplaneType> AirplaneTypeRepository { get; set; }
-        public IGenericRepository<DepartmentType> DepartmentTypeRepository { get; set; }
-        public IGenericRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
+        public IRepository<AirplaneType> AirplaneTypeRepository { get; set; }
+        public IRepository<DepartmentType> DepartmentTypeRepository { get; set; }
+        public IRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
 
         public IAirlineRepository AirlineRepository { get; set; }
-        public IGenericRepository<Airplane> AirplaneRepository { get; set; }
+        public IRepository<Airplane> AirplaneRepository { get; set; }
         public IFlightRepository FlightRepository { get; set; }
 
         private readonly TisaContext _context;
 
         public UnitOfWork(TisaContext context,
-            IGenericRepository<AirplaneType> airplaneTypeRepository,
-            IGenericRepository<DepartmentType> departmentTypeRepository,
-            IGenericRepository<AirplaneDepartmentSeats> airplaneDepartmentSeatsRepository,
-            IGenericRepository<Airplane> airplaneRepository,
+            IRepository<AirplaneType> airplaneTypeRepository,
+            IRepository<DepartmentType> departmentTypeRepository,
+            IRepository<AirplaneDepartmentSeats> airplaneDepartmentSeatsRepository,
+            IRepository<Airplane> airplaneRepository,
             IAirlineRepository airlineRepository,
             IAirportRepository airportRepository,
             IFlightRepository flightRepository)
-        { 
+        {
             _context = context;
 
             AirplaneTypeRepository = airplaneTypeRepository;

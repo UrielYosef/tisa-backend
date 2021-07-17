@@ -14,8 +14,8 @@ namespace TisaBackend.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(256)", nullable: true),
-                    AirlineManagerUser = table.Column<string>(type: "character varying(256)", nullable: true)
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    AirlineManagerEmail = table.Column<string>(type: "character varying(256)", nullable: true)
                 },
                 constraints: table =>
                 {

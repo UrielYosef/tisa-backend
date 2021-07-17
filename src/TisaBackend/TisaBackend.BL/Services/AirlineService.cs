@@ -58,13 +58,12 @@ namespace TisaBackend.BL.Services
 
         public async Task AddAirlineAsync(NewAirlineRequest newAirlineRequest)
         {
-            var airlineManagerUserName =
-                await _userService.ProvideAirlineManagerUser(newAirlineRequest.AirlineManagerEmail);
+            await _userService.ProvideAirlineManagerUser(newAirlineRequest.AirlineManagerEmail);
 
             var airline = new Airline
             {
                 Name = newAirlineRequest.Name,
-                AirlineManagerUser = airlineManagerUserName
+                AirlineManagerEmail = newAirlineRequest.AirlineManagerEmail
             };
 
             await _unitOfWork.AirlineRepository.AddAsync(airline);

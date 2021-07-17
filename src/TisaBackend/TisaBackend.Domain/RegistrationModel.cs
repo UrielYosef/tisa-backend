@@ -1,6 +1,6 @@
 ﻿namespace TisaBackend.Domain
 {
-    public class RegisterModel
+    public class RegistrationModel
     {
         public string Username { get; set; }
         public string Email { get; set; }

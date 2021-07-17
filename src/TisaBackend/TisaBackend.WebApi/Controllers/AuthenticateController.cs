@@ -33,10 +33,10 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginModel loginModel)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user is null || !await _userManager.CheckPasswordAsync(user, model.Password))
+            var user = await _userManager.FindByNameAsync(loginModel.Username);
+            if (user is null || !await _userManager.CheckPasswordAsync(user, loginModel.Password))
                 return Unauthorized();
 
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -69,25 +69,25 @@ namespace TisaBackend.WebApi.Controllers
             });
         }
 
-        //TODO: Check by username and email!
         //TODO: how to check if airline manager is the manager of the current airline request?
         [HttpPost]
         [Route("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegistrationModel registrationModel)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(registrationModel.Username) 
+                             ?? await _userManager.FindByEmailAsync(registrationModel.Email);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status400BadRequest,
                     new { Status = "Error", Message = "User already exists" });
 
             var user = new User
             {
-                Email = model.Email,
-                UserName = model.Username,
+                Email = registrationModel.Email,
+                UserName = registrationModel.Username,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, registrationModel.Password);
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { Status = "Error", Message = "User creation failed" });
@@ -102,20 +102,21 @@ namespace TisaBackend.WebApi.Controllers
         [HttpPost]
         [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
         [Route("RegisterAirlineAgent")]
-        public async Task<IActionResult> RegisterAirlineAgent([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAirlineAgentAsync([FromBody] RegistrationModel registrationModel)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(registrationModel.Username)
+                             ?? await _userManager.FindByEmailAsync(registrationModel.Email);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { Status = "Error", Message = "User already exists" });
 
             var user = new User
             {
-                Email = model.Email,
-                UserName = model.Username,
+                Email = registrationModel.Email,
+                UserName = registrationModel.Username,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, registrationModel.Password);
 
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError,
@@ -131,20 +132,21 @@ namespace TisaBackend.WebApi.Controllers
         [HttpPost]
         [Authorize(Roles = UserRoles.Admin)]
         [Route("RegisterAirlineManager")]
-        public async Task<IActionResult> RegisterAirlineManager([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAirlineManagerAsync([FromBody] RegistrationModel registrationModel)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(registrationModel.Username)
+                             ?? await _userManager.FindByEmailAsync(registrationModel.Email);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { Status = "Error", Message = "User already exists" });
 
             var user = new User
             {
-                Email = model.Email,
-                UserName = model.Username,
+                Email = registrationModel.Email,
+                UserName = registrationModel.Username,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, registrationModel.Password);
 
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError,
@@ -160,19 +162,20 @@ namespace TisaBackend.WebApi.Controllers
         [HttpPost]
         //[Authorize(Roles = UserRoles.Admin)]
         [Route("RegisterAdmin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAdminAsync([FromBody] RegistrationModel registrationModel)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(registrationModel.Username)
+                             ?? await _userManager.FindByEmailAsync(registrationModel.Email);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists" });
 
             var user = new User
             {
-                Email = model.Email,
+                Email = registrationModel.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username,
+                UserName = registrationModel.Username,
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, registrationModel.Password);
 
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed" });

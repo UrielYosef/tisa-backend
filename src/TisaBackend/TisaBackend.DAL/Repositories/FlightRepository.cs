@@ -3,7 +3,7 @@ using TisaBackend.Domain.Models;
 
 namespace TisaBackend.DAL.Repositories
 {
-    public class FlightRepository : GenericRepository<Flight>, IFlightRepository
+    public class FlightRepository : Repository<Flight>, IFlightRepository
     {
         public FlightRepository(TisaContext context) : base(context)
         {

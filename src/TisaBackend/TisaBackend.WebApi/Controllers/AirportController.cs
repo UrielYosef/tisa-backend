@@ -19,7 +19,6 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        //TODO: Check!
         public async Task<IActionResult> GetAirportsAsync(string filter)
         {
             var airports = await _airportService.GetAirportsAsync(filter);
