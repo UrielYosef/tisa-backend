@@ -14,7 +14,7 @@ namespace TisaBackend.DAL.Repositories
 
         }
 
-        /*public async Task<IList<Airport>> GetAirportsAsync(string filter)
+        public async Task<IList<Airport>> GetAirportsAsync(string filter)
         {
             return await Context.Airports
                 .Where(airport => airport.AlphaCode.ToLower().Contains(filter) ||
@@ -22,6 +22,6 @@ namespace TisaBackend.DAL.Repositories
                                   airport.Country.ToLower().Contains(filter) ||
                                   airport.City.ToLower().Contains(filter))
                 .ToListAsync();
-        }*/
+        }
     }
 }

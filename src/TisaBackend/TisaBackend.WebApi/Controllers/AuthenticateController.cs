@@ -11,8 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using TisaBackend.DAL.Auth;
 using TisaBackend.Domain;
+using TisaBackend.Domain.Auth;
 
 namespace TisaBackend.WebApi.Controllers
 {
@@ -69,6 +69,8 @@ namespace TisaBackend.WebApi.Controllers
             });
         }
 
+        //TODO: Check by username and email!
+        //TODO: how to check if airline manager is the manager of the current airline request?
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
@@ -82,8 +84,6 @@ namespace TisaBackend.WebApi.Controllers
             {
                 Email = model.Email,
                 UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
@@ -100,7 +100,7 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.AirlineManager)]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
         [Route("RegisterAirlineAgent")]
         public async Task<IActionResult> RegisterAirlineAgent([FromBody] RegisterModel model)
         {
@@ -113,8 +113,6 @@ namespace TisaBackend.WebApi.Controllers
             {
                 Email = model.Email,
                 UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -144,8 +142,6 @@ namespace TisaBackend.WebApi.Controllers
             {
                 Email = model.Email,
                 UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -162,7 +158,7 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = UserRoles.Admin)]
+        //[Authorize(Roles = UserRoles.Admin)]
         [Route("RegisterAdmin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
@@ -175,8 +171,6 @@ namespace TisaBackend.WebApi.Controllers
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName
             };
             var result = await _userManager.CreateAsync(user, model.Password);
 

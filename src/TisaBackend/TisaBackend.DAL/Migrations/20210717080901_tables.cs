@@ -14,7 +14,8 @@ namespace TisaBackend.DAL.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(256)", nullable: true)
+                    Name = table.Column<string>(type: "character varying(256)", nullable: true),
+                    AirlineManagerUser = table.Column<string>(type: "character varying(256)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -32,6 +33,22 @@ namespace TisaBackend.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AirplaneTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Airports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(256)", nullable: true),
+                    AlphaCode = table.Column<string>(type: "character varying(256)", nullable: true),
+                    Country = table.Column<string>(type: "character varying(256)", nullable: true),
+                    City = table.Column<string>(type: "character varying(256)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Airports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -53,8 +70,6 @@ namespace TisaBackend.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    FirstName = table.Column<string>(type: "text", nullable: true),
-                    LastName = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -312,6 +327,9 @@ namespace TisaBackend.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Airplanes");
+
+            migrationBuilder.DropTable(
+                name: "Airports");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");

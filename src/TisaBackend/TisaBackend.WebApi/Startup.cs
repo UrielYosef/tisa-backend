@@ -12,9 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TisaBackend.BL.Services;
 using TisaBackend.DAL;
-using TisaBackend.DAL.Auth;
 using TisaBackend.DAL.Repositories;
 using TisaBackend.Domain;
+using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
@@ -40,12 +40,14 @@ namespace TisaBackend.WebApi
                             Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                     }
             );
-
+            //TODO: check registration types
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IAirportRepository, AirportRepository>();
             services.AddScoped<IAirlineRepository, AirlineRepository>();
             services.AddScoped<IFlightRepository, FlightRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IAirportService, AirportService>();
             services.AddScoped<IAirplaneTypeService, AirplaneTypeService>();

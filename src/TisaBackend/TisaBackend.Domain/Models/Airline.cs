@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TisaBackend.Domain.Models
 {
@@ -6,6 +7,7 @@ namespace TisaBackend.Domain.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string AirlineManagerUser { get; set; } 
 
         public IList<Airplane> Airplanes { get; set; }
     }

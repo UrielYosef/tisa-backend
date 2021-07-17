@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using TisaBackend.DAL.Auth;
+using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.DAL
@@ -15,7 +15,7 @@ namespace TisaBackend.DAL
         #region DBSets
 
         //Static Data
-        //public virtual DbSet<Airport> Airports { get; set; }
+        public virtual DbSet<Airport> Airports { get; set; }
         public virtual DbSet<AirplaneType> AirplaneTypes { get; set; }
         public virtual DbSet<DepartmentType> DepartmentTypes { get; set; }
         public virtual DbSet<AirplaneDepartmentSeats> AirplaneDepartmentSeats { get; set; }

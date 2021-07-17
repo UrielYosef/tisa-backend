@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Models;
@@ -17,8 +17,7 @@ namespace TisaBackend.BL.Services
 
         public async Task<IList<Airport>> GetAirportsAsync(string filter)
         {
-            //return await _unitOfWork.AirportRepository.GetAirportsAsync(filter?.ToLower());
-            return null;
+            return await _unitOfWork.AirportRepository.GetAirportsAsync(filter?.ToLower() ?? string.Empty);
         }
 
         public async Task AddAirportAsync(Airport airport)
