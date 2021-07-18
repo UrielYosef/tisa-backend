@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using TisaBackend.Domain;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Models;
@@ -16,6 +17,10 @@ namespace TisaBackend.BL.Services
         {
             _unitOfWork = unitOfWork;
             _userService = userService;
+        }
+        public async Task<Airline> GetAirlineByUserIdAsync(string userId)
+        {
+            throw new System.NotImplementedException();
         }
 
         public async Task<IEnumerable<Airline>> GetAllAirlinesAsync()
@@ -56,9 +61,12 @@ namespace TisaBackend.BL.Services
             return airplanesData;
         }
 
+        //TODO: if user is already agent in current or other airline, throw
         public async Task AddAirlineAsync(NewAirlineRequest newAirlineRequest)
         {
-            await _userService.ProvideAirlineManagerUser(newAirlineRequest.AirlineManagerEmail);
+            var user = await _userService.FindUserByEmailAsync(newAirlineRequest.AirlineManagerEmail)
+                       ?? await _userService.CreateNewUserAsync(newAirlineRequest.AirlineManagerEmail);
+            await _userService.AddRoleAsync(user, UserRoles.AirlineManager);
 
             var airline = new Airline
             {
@@ -68,6 +76,15 @@ namespace TisaBackend.BL.Services
 
             await _unitOfWork.AirlineRepository.AddAsync(airline);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        //TODO: if user is already agent in current or other airline, throw
+        public async Task AddAirlineAgentAsync(NewAirlineAgentRequest newAirlineAgentRequest)
+        {
+            var user = await _userService.FindUserByEmailAsync(newAirlineAgentRequest.Email)
+                       ?? await _userService.CreateNewUserAsync(newAirlineAgentRequest.Email);
+            await _userService.AddRoleAsync(user, UserRoles.AirlineAgent);
+            await AddAirlineToUserAsync(newAirlineAgentRequest.AirlineId, user.Id);
         }
 
         public async Task UpdateAirplanesAsync(int airlineId, IList<AirplaneData> airplanesData)
@@ -84,7 +101,7 @@ namespace TisaBackend.BL.Services
                 }
                 else
                 {
-                    if(airplaneData.Count == existsAirplaneData.Count)
+                    if (airplaneData.Count == existsAirplaneData.Count)
                         continue;
                     else if (airplaneData.Count > existsAirplaneData.Count)
                     {
@@ -111,6 +128,11 @@ namespace TisaBackend.BL.Services
 
             await _unitOfWork.AirplaneRepository.AddRangeAsync(newAirplanes);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task AddAirlineToUserAsync(int airlineId, string userId)
+        {
+            //TODO: complete!
         }
     }
 }

@@ -25,13 +25,23 @@ namespace TisaBackend.WebApi.Controllers
         {
             return Ok(await _airlineService.GetAllAirlinesAsync());
         }
-
+        
         [HttpGet]
         [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
         [Route("{airlineId}/Airplanes")]
         public async Task<IActionResult> GetAirlineAirplanesAsync([FromRoute] int airlineId)
         {
             return Ok(await _airlineService.GetAirlineAirplanesAsync(airlineId));
+        }
+
+        [HttpPut]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airlineId}/Airplanes")]
+        public async Task<IActionResult> UpdateAirplanesAsync([FromBody] IList<AirplaneData> airplanesData, int airlineId)
+        {
+            await _airlineService.UpdateAirplanesAsync(airlineId, airplanesData);
+
+            return Ok();
         }
 
         [HttpPut]
@@ -44,12 +54,11 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
-        [Route("{airlineId}/Airplanes")]
-        public async Task<IActionResult> UpdateAirplanesAsync([FromBody] IList<AirplaneData> airplanesData, int airlineId)
+        [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
+        public async Task<IActionResult> AddAirlineAgentAsync([FromBody] NewAirlineAgentRequest newAirlineAgentRequest)
         {
-            await _airlineService.UpdateAirplanesAsync(airlineId, airplanesData);
-
+            await _airlineService.AddAirlineAgentAsync(newAirlineAgentRequest);
+            
             return Ok();
         }
     }
