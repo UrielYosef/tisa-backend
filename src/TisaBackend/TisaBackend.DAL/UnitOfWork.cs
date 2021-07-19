@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
@@ -16,9 +18,9 @@ namespace TisaBackend.DAL
         public IRepository<Airplane> AirplaneRepository { get; set; }
         public IFlightRepository FlightRepository { get; set; }
 
-        private readonly TisaContext _context;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public UnitOfWork(TisaContext context,
+        public UnitOfWork(IServiceScopeFactory serviceScopeFactory,
             IRepository<AirplaneType> airplaneTypeRepository,
             IRepository<DepartmentType> departmentTypeRepository,
             IRepository<AirplaneDepartmentSeats> airplaneDepartmentSeatsRepository,
@@ -27,7 +29,7 @@ namespace TisaBackend.DAL
             IAirportRepository airportRepository,
             IFlightRepository flightRepository)
         {
-            _context = context;
+            _serviceScopeFactory = serviceScopeFactory;
 
             AirplaneTypeRepository = airplaneTypeRepository;
             DepartmentTypeRepository = departmentTypeRepository;
@@ -41,12 +43,16 @@ namespace TisaBackend.DAL
 
         public async Task<int> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            return await context.SaveChangesAsync();
         }
 
         public async void Dispose()
         {
-            await _context.DisposeAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            await context.DisposeAsync();
         }
     }
 }

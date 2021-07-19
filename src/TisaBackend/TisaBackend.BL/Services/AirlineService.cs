@@ -86,7 +86,7 @@ namespace TisaBackend.BL.Services
             await _userService.AddRoleAsync(user, UserRoles.AirlineAgent);
             await AddAirlineToUserAsync(newAirlineAgentRequest.AirlineId, user.Id);
         }
-
+        
         public async Task UpdateAirplanesAsync(int airlineId, IList<AirplaneData> airplanesData)
         {
             var currentAirplanes = await GetAirlineAirplanesAsync(airlineId);
@@ -127,7 +127,7 @@ namespace TisaBackend.BL.Services
                 });
 
             await _unitOfWork.AirplaneRepository.AddRangeAsync(newAirplanes);
-            await _unitOfWork.SaveChangesAsync();
+            //await _unitOfWork.SaveChangesAsync();//TODO: remove UOW commits
         }
 
         private async Task AddAirlineToUserAsync(int airlineId, string userId)

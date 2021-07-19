@@ -8,19 +8,22 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TisaBackend.Domain;
 using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Interfaces.BL;
+using TisaBackend.Domain.Models;
 using SignInResult = TisaBackend.Domain.SignInResult;
 
 namespace TisaBackend.BL.Services
 {
     public class UserService : IUserService
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IAirlineService _airlineService;
+        /*private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;*/
+
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly Random _random;
         private readonly string _jwtSecret;
@@ -32,11 +35,11 @@ namespace TisaBackend.BL.Services
         private readonly string _digitsCharacters;
         private readonly int _userCreationByEmailAttempts;
 
-        public UserService(IConfiguration config, IAirlineService airlineService, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public UserService(IConfiguration config, IServiceScopeFactory serviceScopeFactory)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _airlineService = airlineService;
+            /*_userManager = userManager;
+            _roleManager = roleManager;*/
+            _serviceScopeFactory = serviceScopeFactory;
 
             _jwtSecret = config.GetSection("JWT").GetSection("Secret").Get<string>();
             _jwtValidIssuer = config.GetSection("JWT").GetSection("ValidIssuer").Get<string>();
@@ -57,11 +60,14 @@ namespace TisaBackend.BL.Services
 
         public async Task<SignInResult> SignInAsync(SignInModel signInModel)
         {
-            var user = await _userManager.FindByNameAsync(signInModel.Username);
-            if (user is null || !await _userManager.CheckPasswordAsync(user, signInModel.Password))
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+            var user = await userManager.FindByNameAsync(signInModel.Username);
+            if (user is null || !await userManager.CheckPasswordAsync(user, signInModel.Password))
                 return new SignInResult(StatusCodes.Status404NotFound);
 
-            var userRoles = await _userManager.GetRolesAsync(user);
+            var userRoles = await userManager.GetRolesAsync(user);
 
             var authClaims = new List<Claim>
             {
@@ -87,7 +93,8 @@ namespace TisaBackend.BL.Services
             SignInDetails details;
             if (userRoles.Contains(UserRoles.AirlineManager) || userRoles.Contains(UserRoles.AirlineAgent))
             {
-                var airline = await _airlineService.GetAirlineByUserIdAsync(user.Id);
+                //TODO: Complete!
+                var airline = new Airline();
                 details = new AirlineSignInDetails
                 {
                     Username = user.UserName,
@@ -116,8 +123,12 @@ namespace TisaBackend.BL.Services
 
         public async Task<SignUpResult> SignUpAsync(SignUpModel signUpModel)
         {
-            var userExists = await _userManager.FindByNameAsync(signUpModel.Username)
-                             ?? await _userManager.FindByEmailAsync(signUpModel.Email);
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            var userExists = await userManager.FindByNameAsync(signUpModel.Username)
+                             ?? await userManager.FindByEmailAsync(signUpModel.Email);
             if (userExists != null)
                 return new SignUpResult(StatusCodes.Status400BadRequest, 
                     "Error",  "User already exists");
@@ -129,14 +140,14 @@ namespace TisaBackend.BL.Services
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            var result = await _userManager.CreateAsync(user, signUpModel.Password);
+            var result = await userManager.CreateAsync(user, signUpModel.Password);
             if (!result.Succeeded)
                 return new SignUpResult(StatusCodes.Status500InternalServerError,
                     "Error", "User creation failed");
 
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Client))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Client));
-            await _userManager.AddToRoleAsync(user, UserRoles.Client);
+            if (!await roleManager.RoleExistsAsync(UserRoles.Client))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Client));
+            await userManager.AddToRoleAsync(user, UserRoles.Client);
 
             return new SignUpResult(StatusCodes.Status200OK,
                 "Success", "User created successfully");
@@ -144,11 +155,17 @@ namespace TisaBackend.BL.Services
 
         public async Task<User> FindUserByEmailAsync(string email)
         {
-            return await _userManager.FindByEmailAsync(email);
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+            return await userManager.FindByEmailAsync(email);
         }
 
         public async Task<User> CreateNewUserAsync(string email)
         {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
             var user = new User
             {
                 Email = email,
@@ -156,12 +173,12 @@ namespace TisaBackend.BL.Services
             };
 
             var userName = user.Email.Substring(0, user.Email.IndexOf('@'));
-            if (await _userManager.FindByNameAsync(userName) != null)
+            if (await userManager.FindByNameAsync(userName) != null)
             {
                 int attempts = 1;
                 while (attempts <= _userCreationByEmailAttempts)
                 {
-                    var userExists = await _userManager.FindByNameAsync(userName + attempts);
+                    var userExists = await userManager.FindByNameAsync(userName + attempts);
                     if (userExists is null)
                     {
                         userName = userName + attempts;
@@ -173,7 +190,7 @@ namespace TisaBackend.BL.Services
 
             user.UserName = userName;
             var password = GenerateNewPassword();
-            var result = await _userManager.CreateAsync(user, password);
+            var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
                 return null;
 
@@ -182,10 +199,14 @@ namespace TisaBackend.BL.Services
 
         public async Task AddRoleAsync(User user, string role)
         {
-            if (!await _roleManager.RoleExistsAsync(role))
-                await _roleManager.CreateAsync(new IdentityRole(role));
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            await _userManager.AddToRoleAsync(user, role);
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+
+            await userManager.AddToRoleAsync(user, role);
         }
 
         private string GenerateNewPassword()

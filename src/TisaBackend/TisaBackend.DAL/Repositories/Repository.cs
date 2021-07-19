@@ -1,55 +1,74 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using TisaBackend.Domain.Interfaces;
 
 namespace TisaBackend.DAL.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        protected TisaContext Context;
+        protected readonly IServiceScopeFactory ServiceScopeFactory;
 
-        public Repository(TisaContext context)
+        public Repository(IServiceScopeFactory serviceScopeFactory)
         {
-            Context = context;
+            ServiceScopeFactory = serviceScopeFactory;
         }
 
         public async Task AddAsync(T entity)
         {
-            await Context.Set<T>().AddAsync(entity);
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            await context.Set<T>().AddAsync(entity);
+            await context.SaveChangesAsync();
         }
 
         public async Task AddRangeAsync(IEnumerable<T> entities)
         {
-            await Context.Set<T>().AddRangeAsync(entities);
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            await context.Set<T>().AddRangeAsync(entities);
+            await context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
         {
-            return await Context.Set<T>().Where(expression).ToListAsync();
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            return await context.Set<T>().Where(expression).ToListAsync();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await Context.Set<T>().ToListAsync();
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            return await context.Set<T>().ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
-            return await Context.Set<T>().FindAsync(id);
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            return await context.Set<T>().FindAsync(id);
         }
 
-        public void Remove(T entity)
+        public async Task RemoveAsync(T entity)
         {
-            Context.Set<T>().Remove(entity);
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            context.Set<T>().Remove(entity);
+            await context.SaveChangesAsync();
         }
 
-        public void RemoveRange(IEnumerable<T> entities)
+        public async Task RemoveRangeAsync(IEnumerable<T> entities)
         {
-            Context.Set<T>().RemoveRange(entities);
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            context.Set<T>().RemoveRange(entities);
+            await context.SaveChangesAsync();
         }
     }
 }

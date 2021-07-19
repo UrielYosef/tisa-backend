@@ -46,6 +46,7 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpPut]
         [Authorize(Roles = UserRoles.Admin)]
+        [Route("New")]
         public async Task<IActionResult> AddAirlineAsync([FromBody] NewAirlineRequest newAirlineRequest)
         {
             await _airlineService.AddAirlineAsync(newAirlineRequest);
@@ -55,6 +56,7 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpPut]
         [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
+        [Route("NewAgent")]
         public async Task<IActionResult> AddAirlineAgentAsync([FromBody] NewAirlineAgentRequest newAirlineAgentRequest)
         {
             await _airlineService.AddAirlineAgentAsync(newAirlineAgentRequest);

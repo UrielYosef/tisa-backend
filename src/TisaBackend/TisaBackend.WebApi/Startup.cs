@@ -47,19 +47,19 @@ namespace TisaBackend.WebApi
             }));
 
             //TODO: check registration types
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IAirportRepository, AirportRepository>();
-            services.AddScoped<IAirlineRepository, AirlineRepository>();
-            services.AddScoped<IFlightRepository, FlightRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
+            services.AddSingleton<IAirportRepository, AirportRepository>();
+            services.AddSingleton<IAirlineRepository, AirlineRepository>();
+            services.AddSingleton<IFlightRepository, FlightRepository>();
+            services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
-            services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<IUserService, UserService>();
 
-            services.AddScoped<IAirportService, AirportService>();
-            services.AddScoped<IAirplaneTypeService, AirplaneTypeService>();
+            services.AddSingleton<IAirportService, AirportService>();
+            services.AddSingleton<IAirplaneTypeService, AirplaneTypeService>();
 
-            services.AddScoped<IAirlineService, AirlineService>();
-            services.AddScoped<IFlightService, FlightService>();
+            services.AddSingleton<IAirlineService, AirlineService>();
+            services.AddSingleton<IFlightService, FlightService>();
 
             ConfigureDal(services);
             
