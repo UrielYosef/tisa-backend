@@ -11,6 +11,7 @@ namespace TisaBackend.Domain.Interfaces.BL
         Task<SignUpResult> SignUpAsync(SignUpModel signUpModel);
         Task<User> FindUserByEmailAsync(string email);
         Task<User> CreateNewUserAsync(string email, string role);
+        Task AddRoleToUserAsync(string userEmail, string role);
         Task<bool> TryAddUserToAirlineAsync(string userId, int airlineId);
         Task<IList<string>> GetUsersEmails(int airlineId);
     }

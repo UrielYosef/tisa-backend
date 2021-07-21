@@ -232,6 +232,22 @@ namespace TisaBackend.BL.Services
             return user;
         }
 
+        public async Task AddRoleToUserAsync(string userEmail, string role)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            var user = await userManager.FindByEmailAsync(userEmail);
+            if (user is null)
+                return;
+
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+
+            await userManager.AddToRoleAsync(user, role);
+        }
+
         public async Task<bool> TryAddUserToAirlineAsync(string userId, int airlineId)
         {
             using var scope = _serviceScopeFactory.CreateScope();
