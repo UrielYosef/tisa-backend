@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TisaBackend.Domain;
@@ -24,31 +25,50 @@ namespace TisaBackend.WebApi.Controllers
         {
             return Ok(await _airlineService.GetAllAirlinesAsync());
         }
-
+        
         [HttpGet]
-        [Route("{airlineId}")]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airlineId}/Airplanes")]
         public async Task<IActionResult> GetAirlineAirplanesAsync([FromRoute] int airlineId)
         {
             return Ok(await _airlineService.GetAirlineAirplanesAsync(airlineId));
         }
 
-        [HttpPut]
-        [Authorize(Roles = UserRoles.Admin)]
-        public async Task<IActionResult> AddAirlineAsync([FromBody] Airline airline)
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
+        [Route("{airlineId}/Agents")]
+        public async Task<IActionResult> GetAirlineAgentsAsync([FromRoute] int airlineId)
         {
-            await _airlineService.AddAirlineAsync(airline);
+            return Ok(await _airlineService.GetAirlineAgentsAsync(airlineId));
+        }
+
+        [HttpPut]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airlineId}/Airplanes")]
+        public async Task<IActionResult> UpdateAirplanesAsync([FromBody] IList<AirplaneData> airplanesData, int airlineId)
+        {
+            await _airlineService.UpdateAirplanesAsync(airlineId, airplanesData);
 
             return Ok();
         }
 
         [HttpPut]
-        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.AirlineManager + "," + UserRoles.AirlineAgent)]
-        [Route("Airplane")]
-        public async Task<IActionResult> AddAirplaneAsync([FromBody] Airplane airplane)
+        [Authorize(Roles = UserRoles.Admin)]
+        public async Task<IActionResult> AddAirlineAsync([FromBody] NewAirlineRequest newAirlineRequest)
         {
-            await _airlineService.AddAirplaneAsync(airplane);
+            var isSuccess = await _airlineService.TryAddAirlineAsync(newAirlineRequest);
 
-            return Ok();
+            return Ok(isSuccess);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
+        [Route("Agent")]
+        public async Task<IActionResult> AddAirlineAgentAsync([FromBody] NewAirlineAgentRequest newAirlineAgentRequest)
+        {
+            var result = await _airlineService.TryAddAirlineAgentAsync(newAirlineAgentRequest);
+            
+            return Ok(result);
         }
     }
 }

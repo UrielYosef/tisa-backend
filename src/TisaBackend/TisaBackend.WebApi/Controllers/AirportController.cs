@@ -18,7 +18,6 @@ namespace TisaBackend.WebApi.Controllers
             _airportService = airportService;
         }
 
-        [Authorize(Roles = UserRoles.Admin)]
         [HttpGet]
         public async Task<IActionResult> GetAirportsAsync(string filter)
         {

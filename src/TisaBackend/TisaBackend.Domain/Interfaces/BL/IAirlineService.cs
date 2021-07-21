@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.Domain.Interfaces.BL
@@ -7,8 +7,10 @@ namespace TisaBackend.Domain.Interfaces.BL
     public interface IAirlineService
     {
         Task<IEnumerable<Airline>> GetAllAirlinesAsync();
-        Task<IDictionary<string, int>> GetAirlineAirplanesAsync(int airlineId);
-        Task AddAirlineAsync(Airline airline);
-        Task AddAirplaneAsync(Airplane airplane);
+        Task<IList<AirplaneData>> GetAirlineAirplanesAsync(int airlineId);
+        Task UpdateAirplanesAsync(int airlineId, IList<AirplaneData> airplanesData);
+        Task<IList<string>> GetAirlineAgentsAsync(int airlineId);
+        Task<bool> TryAddAirlineAsync(NewAirlineRequest newAirlineRequest);
+        Task<bool> TryAddAirlineAgentAsync(NewAirlineAgentRequest newAirlineAgentRequest);
     }
 }

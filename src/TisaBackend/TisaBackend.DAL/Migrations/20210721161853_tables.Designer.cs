@@ -10,7 +10,7 @@ using TisaBackend.DAL;
 namespace TisaBackend.DAL.Migrations
 {
     [DbContext(typeof(TisaContext))]
-    [Migration("20210716154107_tables")]
+    [Migration("20210721161853_tables")]
     partial class tables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -151,7 +151,7 @@ namespace TisaBackend.DAL.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("TisaBackend.DAL.Auth.User", b =>
+            modelBuilder.Entity("TisaBackend.Domain.Auth.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -169,12 +169,6 @@ namespace TisaBackend.DAL.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -227,6 +221,9 @@ namespace TisaBackend.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("AirlineManagerEmail")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -298,6 +295,30 @@ namespace TisaBackend.DAL.Migrations
                     b.ToTable("AirplaneTypes");
                 });
 
+            modelBuilder.Entity("TisaBackend.Domain.Models.Airport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("AlphaCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Airports");
+                });
+
             modelBuilder.Entity("TisaBackend.Domain.Models.DepartmentType", b =>
                 {
                     b.Property<int>("Id")
@@ -313,6 +334,28 @@ namespace TisaBackend.DAL.Migrations
                     b.ToTable("DepartmentTypes");
                 });
 
+            modelBuilder.Entity("TisaBackend.Domain.Models.UserToAirline", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int>("AirlineId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AirlineId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserToAirline");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -324,7 +367,7 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TisaBackend.DAL.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -333,7 +376,7 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TisaBackend.DAL.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -348,7 +391,7 @@ namespace TisaBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TisaBackend.DAL.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -357,7 +400,7 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TisaBackend.DAL.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -400,6 +443,23 @@ namespace TisaBackend.DAL.Migrations
                     b.Navigation("AirplaneType");
 
                     b.Navigation("DepartmentType");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.UserToAirline", b =>
+                {
+                    b.HasOne("TisaBackend.Domain.Models.Airline", "Airline")
+                        .WithMany()
+                        .HasForeignKey("AirlineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TisaBackend.Domain.Auth.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Airline");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TisaBackend.Domain.Models.Airline", b =>

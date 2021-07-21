@@ -2,9 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.1" NoWarn="NU1605" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TisaBackend.DAL\TisaBackend.DAL.csproj" />
     <ProjectReference Include="..\TisaBackend.Domain\TisaBackend.Domain.csproj" />
   </ItemGroup>
 

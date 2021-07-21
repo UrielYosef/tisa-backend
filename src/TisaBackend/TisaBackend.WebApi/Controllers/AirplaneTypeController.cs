@@ -7,6 +7,7 @@ using TisaBackend.Domain.Models;
 
 namespace TisaBackend.WebApi.Controllers
 {
+    //TODO: remove comments at the end
     [Route("api/[controller]")]
     [ApiController]
     public class AirplaneTypeController : ControllerBase
@@ -17,7 +18,7 @@ namespace TisaBackend.WebApi.Controllers
         {
             _airplaneTypeService = airplaneTypeService;
         }
-
+        /*
         [HttpGet]
         [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> GetAirplaneTypesAsync()
@@ -55,6 +56,6 @@ namespace TisaBackend.WebApi.Controllers
             await _airplaneTypeService.AddSeatsToAirplaneTypeDepartmentAsync(airplaneDepartmentSeats);
 
             return Ok();
-        }
+        }*/
     }
 }

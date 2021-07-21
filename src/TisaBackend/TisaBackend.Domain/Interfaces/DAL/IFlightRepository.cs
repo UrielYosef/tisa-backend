@@ -2,7 +2,7 @@
 
 namespace TisaBackend.Domain.Interfaces.DAL
 {
-    public interface IFlightRepository : IGenericRepository<Flight>
+    public interface IFlightRepository : IRepository<Flight>
     {
 
     }

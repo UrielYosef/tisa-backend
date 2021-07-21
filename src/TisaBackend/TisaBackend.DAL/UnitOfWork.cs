@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
@@ -8,26 +10,26 @@ namespace TisaBackend.DAL
     public class UnitOfWork : IUnitOfWork
     {
         public IAirportRepository AirportRepository { get; set; }
-        public IGenericRepository<AirplaneType> AirplaneTypeRepository { get; set; }
-        public IGenericRepository<DepartmentType> DepartmentTypeRepository { get; set; }
-        public IGenericRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
+        public IRepository<AirplaneType> AirplaneTypeRepository { get; set; }
+        public IRepository<DepartmentType> DepartmentTypeRepository { get; set; }
+        public IRepository<AirplaneDepartmentSeats> AirplaneDepartmentSeatsRepository { get; set; }
 
         public IAirlineRepository AirlineRepository { get; set; }
-        public IGenericRepository<Airplane> AirplaneRepository { get; set; }
+        public IRepository<Airplane> AirplaneRepository { get; set; }
         public IFlightRepository FlightRepository { get; set; }
 
-        private readonly TisaContext _context;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public UnitOfWork(TisaContext context,
-            IGenericRepository<AirplaneType> airplaneTypeRepository,
-            IGenericRepository<DepartmentType> departmentTypeRepository,
-            IGenericRepository<AirplaneDepartmentSeats> airplaneDepartmentSeatsRepository,
-            IGenericRepository<Airplane> airplaneRepository,
+        public UnitOfWork(IServiceScopeFactory serviceScopeFactory,
+            IRepository<AirplaneType> airplaneTypeRepository,
+            IRepository<DepartmentType> departmentTypeRepository,
+            IRepository<AirplaneDepartmentSeats> airplaneDepartmentSeatsRepository,
+            IRepository<Airplane> airplaneRepository,
             IAirlineRepository airlineRepository,
             IAirportRepository airportRepository,
             IFlightRepository flightRepository)
-        { 
-            _context = context;
+        {
+            _serviceScopeFactory = serviceScopeFactory;
 
             AirplaneTypeRepository = airplaneTypeRepository;
             DepartmentTypeRepository = departmentTypeRepository;
@@ -41,12 +43,16 @@ namespace TisaBackend.DAL
 
         public async Task<int> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            return await context.SaveChangesAsync();
         }
 
         public async void Dispose()
         {
-            await _context.DisposeAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>(); 
+            await context.DisposeAsync();
         }
     }
 }

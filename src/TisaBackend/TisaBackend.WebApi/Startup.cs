@@ -1,20 +1,18 @@
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TisaBackend.BL.Services;
 using TisaBackend.DAL;
-using TisaBackend.DAL.Auth;
 using TisaBackend.DAL.Repositories;
-using TisaBackend.Domain;
+using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
@@ -41,17 +39,26 @@ namespace TisaBackend.WebApi
                     }
             );
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<IAirportRepository, AirportRepository>();
-            services.AddScoped<IAirlineRepository, AirlineRepository>();
-            services.AddScoped<IFlightRepository, FlightRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
 
-            services.AddScoped<IAirportService, AirportService>();
-            services.AddScoped<IAirplaneTypeService, AirplaneTypeService>();
+            services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
+            services.AddSingleton<IAirportRepository, AirportRepository>();
+            services.AddSingleton<IAirlineRepository, AirlineRepository>();
+            services.AddSingleton<IFlightRepository, FlightRepository>();
+            services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
-            services.AddScoped<IAirlineService, AirlineService>();
-            services.AddScoped<IFlightService, FlightService>();
+            services.AddSingleton<IUserService, UserService>();
+
+            services.AddSingleton<IAirportService, AirportService>();
+            services.AddSingleton<IAirplaneTypeService, AirplaneTypeService>();
+
+            services.AddSingleton<IAirlineService, AirlineService>();
+            services.AddSingleton<IFlightService, FlightService>();
 
             ConfigureDal(services);
             
@@ -64,7 +71,7 @@ namespace TisaBackend.WebApi
         {
             //Entity Framework
             services.AddDbContext<TisaContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
         }
 
         public void ConfigureAuth(IServiceCollection services)
@@ -148,6 +155,8 @@ namespace TisaBackend.WebApi
 
             // use url routing based on controllers functions (to find them)
             app.UseRouting();
+
+            app.UseCors("MyPolicy");
 
             // who are you?
             app.UseAuthentication();

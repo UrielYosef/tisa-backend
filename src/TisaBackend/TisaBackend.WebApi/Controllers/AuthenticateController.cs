@@ -1,18 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using TisaBackend.DAL.Auth;
 using TisaBackend.Domain;
+using TisaBackend.Domain.Interfaces.BL;
 
 namespace TisaBackend.WebApi.Controllers
 {
@@ -20,174 +9,40 @@ namespace TisaBackend.WebApi.Controllers
     [Route("api/[controller]")]
     public class AuthenticateController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
+        private readonly IUserService _userService;
 
-        public AuthenticateController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthenticateController(IUserService userService)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _configuration = configuration;
+            _userService = userService;
         }
 
         [HttpPost]
-        [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        [Route("SignIn")]
+        public async Task<IActionResult> SignInAsync([FromBody] SignInModel signInModel)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user is null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Unauthorized();
+            var signInResult = await _userService.SignInAsync(signInModel);
 
-            var userRoles = await _userManager.GetRolesAsync(user);
+            return StatusCode(signInResult.StatusCode, signInResult.SignInDetails);
+        }
 
-            var authClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddHours(4)).ToUnixTimeSeconds().ToString())
-            };
-            authClaims
-                .AddRange(userRoles
-                    .Select(userRole => new Claim(ClaimTypes.Role, userRole)));
+        //TODO: how to check if airline manager is the manager of the current airline request?
+        [HttpPost]
+        [Route("SignUp")]
+        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel signUpModel)
+        {
+            var signUpResult = await _userService.SignUpAsync(signUpModel);
 
-            var authSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(4),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-            );
-
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
-            });
+            return StatusCode(signUpResult.StatusCode, signUpResult);
         }
 
         [HttpPost]
-        [Route("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status400BadRequest,
-                    new { Status = "Error", Message = "User already exists" });
-
-            var user = new User
-            {
-                Email = model.Email,
-                UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { Status = "Error", Message = "User creation failed" });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Client))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Client));
-            await _userManager.AddToRoleAsync(user, UserRoles.Client);
-
-            return Ok(new { Status = "Success", Message = "User created successfully" });
-        }
-
-        [HttpPost]
-        [Authorize(Roles = UserRoles.Admin + "," + UserRoles.AirlineManager)]
-        [Route("RegisterAirlineAgent")]
-        public async Task<IActionResult> RegisterAirlineAgent([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { Status = "Error", Message = "User already exists" });
-
-            var user = new User
-            {
-                Email = model.Email,
-                UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { Status = "Error", Message = "User creation failed" });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.AirlineAgent))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.AirlineAgent));
-            await _userManager.AddToRoleAsync(user, UserRoles.AirlineAgent);
-
-            return Ok(new { Status = "Success", Message = "User created successfully" });
-        }
-
-        [HttpPost]
-        [Authorize(Roles = UserRoles.Admin)]
-        [Route("RegisterAirlineManager")]
-        public async Task<IActionResult> RegisterAirlineManager([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { Status = "Error", Message = "User already exists" });
-
-            var user = new User
-            {
-                Email = model.Email,
-                UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { Status = "Error", Message = "User creation failed" });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.AirlineManager))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.AirlineManager));
-            await _userManager.AddToRoleAsync(user, UserRoles.AirlineManager);
-
-            return Ok(new { Status = "Success", Message = "User created successfully" });
-        }
-
-        [HttpPost]
-        [Authorize(Roles = UserRoles.Admin)]
+        //[Authorize(Roles = UserRoles.Admin)]
         [Route("RegisterAdmin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAdminAsync([FromBody] SignUpModel signUpModel)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists" });
+            var signUpResult = await _userService.RegisterAdminAsync(signUpModel);
 
-            var user = new User
-            {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username,
-                FirstName = model.FirstName,
-                LastName = model.LastName
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed" });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            await _userManager.AddToRoleAsync(user, UserRoles.Admin);
-
-            return Ok(new { Status = "Success", Message = "User created successfully" });
+            return StatusCode(signUpResult.StatusCode, signUpResult);
         }
     }
 }
