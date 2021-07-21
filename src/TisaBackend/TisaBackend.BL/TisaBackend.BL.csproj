@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TisaBackend.DAL\TisaBackend.DAL.csproj" />
     <ProjectReference Include="..\TisaBackend.Domain\TisaBackend.Domain.csproj" />
   </ItemGroup>
 

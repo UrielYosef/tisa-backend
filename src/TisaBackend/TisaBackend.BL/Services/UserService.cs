@@ -7,11 +7,14 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using TisaBackend.DAL;
 using TisaBackend.Domain;
 using TisaBackend.Domain.Auth;
+using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Models;
 using SignInResult = TisaBackend.Domain.SignInResult;
@@ -20,9 +23,6 @@ namespace TisaBackend.BL.Services
 {
     public class UserService : IUserService
     {
-        /*private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;*/
-
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly Random _random;
@@ -37,8 +37,6 @@ namespace TisaBackend.BL.Services
 
         public UserService(IConfiguration config, IServiceScopeFactory serviceScopeFactory)
         {
-            /*_userManager = userManager;
-            _roleManager = roleManager;*/
             _serviceScopeFactory = serviceScopeFactory;
 
             _jwtSecret = config.GetSection("JWT").GetSection("Secret").Get<string>();
@@ -56,6 +54,38 @@ namespace TisaBackend.BL.Services
                 .GetSection("UserService").GetSection("digitsCharacters").Get<string>();
 
             _random = new Random();
+        }
+
+        public async Task<SignUpResult> RegisterAdminAsync(SignUpModel signUpModel)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            var userExists = await userManager.FindByNameAsync(signUpModel.Username)
+                             ?? await userManager.FindByEmailAsync(signUpModel.Email);
+            if (userExists != null)
+                return new SignUpResult(StatusCodes.Status400BadRequest,
+                    "Error", "User already exists");
+
+            var user = new User
+            {
+                Email = signUpModel.Email,
+                UserName = signUpModel.Username,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var result = await userManager.CreateAsync(user, signUpModel.Password);
+            if (!result.Succeeded)
+                return new SignUpResult(StatusCodes.Status500InternalServerError,
+                    "Error", "User creation failed");
+
+            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+            await userManager.AddToRoleAsync(user, UserRoles.Admin);
+
+            return new SignUpResult(StatusCodes.Status200OK,
+                "Success", "User created successfully");
         }
 
         public async Task<SignInResult> SignInAsync(SignInModel signInModel)
@@ -93,8 +123,7 @@ namespace TisaBackend.BL.Services
             SignInDetails details;
             if (userRoles.Contains(UserRoles.AirlineManager) || userRoles.Contains(UserRoles.AirlineAgent))
             {
-                //TODO: Complete!
-                var airline = new Airline();
+                var airline = await GetAirlineAsync(user.Id);
                 details = new AirlineSignInDetails
                 {
                     Username = user.UserName,
@@ -161,10 +190,11 @@ namespace TisaBackend.BL.Services
             return await userManager.FindByEmailAsync(email);
         }
 
-        public async Task<User> CreateNewUserAsync(string email)
+        public async Task<User> CreateNewUserAsync(string email, string role)
         {
             using var scope = _serviceScopeFactory.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             var user = new User
             {
@@ -194,19 +224,54 @@ namespace TisaBackend.BL.Services
             if (!result.Succeeded)
                 return null;
 
-            return user;
-        }
-
-        public async Task AddRoleAsync(User user, string role)
-        {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
             if (!await roleManager.RoleExistsAsync(role))
                 await roleManager.CreateAsync(new IdentityRole(role));
 
             await userManager.AddToRoleAsync(user, role);
+
+            return user;
+        }
+
+        public async Task<bool> TryAddUserToAirlineAsync(string userId, int airlineId)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var tisaContext = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            var existingMap = tisaContext.UserToAirline
+                .FirstOrDefault(userToAirline => userToAirline.UserId.Equals(userId));
+            if (existingMap != null)
+                return false;
+
+            await tisaContext.UserToAirline.AddAsync(new UserToAirline(userId, airlineId));
+            await tisaContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<IList<string>> GetUsersEmails(int airlineId)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var tisaContext = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            var airlineUsersEmail = await tisaContext.UserToAirline
+                .Include(userToAirline => userToAirline.User)
+                .Where(userToAirline => userToAirline.AirlineId.Equals(airlineId))
+                .Select(userToAirline => userToAirline.User.Email)
+                .ToListAsync();
+
+            return airlineUsersEmail;
+        }
+
+        private async Task<Airline> GetAirlineAsync(string userId)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var tisaContext = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            return await tisaContext.UserToAirline
+                .Include(userToAirline => userToAirline.Airline)
+                .Where(userToAirline => userToAirline.UserId.Equals(userId))
+                .Select(userToAirline => userToAirline.Airline)
+                .SingleOrDefaultAsync();
         }
 
         private string GenerateNewPassword()

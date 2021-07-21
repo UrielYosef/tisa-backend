@@ -4,39 +4,75 @@ using System.Collections.Generic;
 using TisaBackend.Domain;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
+using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.BL.Services
 {
     public class AirlineService : IAirlineService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAirlineRepository _airlineRepository;
+        private readonly IRepository<Airplane> _airplaneRepository;
+        private readonly IRepository<AirplaneType> _airplaneTypeRepository;
         private readonly IUserService _userService;
 
-        public AirlineService(IUnitOfWork unitOfWork, IUserService userService)
+        public AirlineService(IAirlineRepository airlineRepository,
+            IRepository<Airplane> airplaneRepository,
+            IRepository<AirplaneType> airplaneTypeRepository,
+            IUserService userService)
         {
-            _unitOfWork = unitOfWork;
+            _airlineRepository = airlineRepository;
+            _airplaneRepository = airplaneRepository;
+            _airplaneTypeRepository = airplaneTypeRepository;
             _userService = userService;
-        }
-        public async Task<Airline> GetAirlineByUserIdAsync(string userId)
-        {
-            throw new System.NotImplementedException();
         }
 
         public async Task<IEnumerable<Airline>> GetAllAirlinesAsync()
         {
-            var airlines = await _unitOfWork.AirlineRepository.GetAllAsync();
+            var airlines = await _airlineRepository.GetAllAsync();
 
             return airlines;
         }
 
+        public async Task<IList<string>> GetAirlineAgentsAsync(int airlineId)
+        {
+            return await _userService.GetUsersEmails(airlineId);
+        }
+
+        public async Task<bool> TryAddAirlineAsync(NewAirlineRequest newAirlineRequest)
+        {
+            var user = await _userService.FindUserByEmailAsync(newAirlineRequest.AirlineManagerEmail)
+                       ?? await _userService.CreateNewUserAsync(newAirlineRequest.AirlineManagerEmail, UserRoles.AirlineManager);
+
+            var airline = new Airline
+            {
+                Name = newAirlineRequest.Name,
+                AirlineManagerEmail = newAirlineRequest.AirlineManagerEmail
+            };
+
+            await _airlineRepository.AddAsync(airline);
+            var isSuccess = await _userService.TryAddUserToAirlineAsync(user.Id, airline.Id);
+
+            return isSuccess;
+        }
+
+        public async Task<bool> TryAddAirlineAgentAsync(NewAirlineAgentRequest newAirlineAgentRequest)
+        {
+            var user = await _userService.FindUserByEmailAsync(newAirlineAgentRequest.Email)
+                       ?? await _userService.CreateNewUserAsync(newAirlineAgentRequest.Email, UserRoles.AirlineAgent);
+
+            var isSuccess = await _userService.TryAddUserToAirlineAsync(user.Id, newAirlineAgentRequest.AirlineId);
+
+            return isSuccess;
+        }
+
         public async Task<IList<AirplaneData>> GetAirlineAirplanesAsync(int airlineId)
         {
-            var airline = await _unitOfWork.AirlineRepository.GetAirlineAsync(airlineId);
+            var airline = await _airlineRepository.GetAirlineAsync(airlineId);
             if (airline is null)
                 return null;
 
-            var airplanesTypes = (await _unitOfWork.AirplaneTypeRepository.GetAllAsync()).ToList();
+            var airplanesTypes = (await _airplaneTypeRepository.GetAllAsync()).ToList();
             var airplanesData = airplanesTypes
                 .Select(airplaneType => new AirplaneData
                 {
@@ -61,32 +97,6 @@ namespace TisaBackend.BL.Services
             return airplanesData;
         }
 
-        //TODO: if user is already agent in current or other airline, throw
-        public async Task AddAirlineAsync(NewAirlineRequest newAirlineRequest)
-        {
-            var user = await _userService.FindUserByEmailAsync(newAirlineRequest.AirlineManagerEmail)
-                       ?? await _userService.CreateNewUserAsync(newAirlineRequest.AirlineManagerEmail);
-            await _userService.AddRoleAsync(user, UserRoles.AirlineManager);
-
-            var airline = new Airline
-            {
-                Name = newAirlineRequest.Name,
-                AirlineManagerEmail = newAirlineRequest.AirlineManagerEmail
-            };
-
-            await _unitOfWork.AirlineRepository.AddAsync(airline);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        //TODO: if user is already agent in current or other airline, throw
-        public async Task AddAirlineAgentAsync(NewAirlineAgentRequest newAirlineAgentRequest)
-        {
-            var user = await _userService.FindUserByEmailAsync(newAirlineAgentRequest.Email)
-                       ?? await _userService.CreateNewUserAsync(newAirlineAgentRequest.Email);
-            await _userService.AddRoleAsync(user, UserRoles.AirlineAgent);
-            await AddAirlineToUserAsync(newAirlineAgentRequest.AirlineId, user.Id);
-        }
-        
         public async Task UpdateAirplanesAsync(int airlineId, IList<AirplaneData> airplanesData)
         {
             var currentAirplanes = await GetAirlineAirplanesAsync(airlineId);
@@ -126,13 +136,7 @@ namespace TisaBackend.BL.Services
                     AirplaneTypeId = airplaneTypeId
                 });
 
-            await _unitOfWork.AirplaneRepository.AddRangeAsync(newAirplanes);
-            //await _unitOfWork.SaveChangesAsync();//TODO: remove UOW commits
-        }
-
-        private async Task AddAirlineToUserAsync(int airlineId, string userId)
-        {
-            //TODO: complete!
+            await _airplaneRepository.AddRangeAsync(newAirplanes);
         }
     }
 }
