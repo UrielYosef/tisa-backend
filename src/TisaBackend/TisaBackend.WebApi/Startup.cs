@@ -46,7 +46,6 @@ namespace TisaBackend.WebApi
                     .AllowAnyHeader();
             }));
 
-            //TODO: check registration types
             services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
             services.AddSingleton<IAirportRepository, AirportRepository>();
             services.AddSingleton<IAirlineRepository, AirlineRepository>();

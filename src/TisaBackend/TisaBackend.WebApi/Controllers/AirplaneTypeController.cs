@@ -7,7 +7,7 @@ using TisaBackend.Domain.Models;
 
 namespace TisaBackend.WebApi.Controllers
 {
-    //TODO: check if needed
+    //TODO: remove comments at the end
     [Route("api/[controller]")]
     [ApiController]
     public class AirplaneTypeController : ControllerBase
