@@ -1,0 +1,14 @@
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TisaBackend.Domain.Models
+{
+    public class Airline
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string AirlineManagerEmail { get; set; } 
+
+        public IList<Airplane> Airplanes { get; set; }
+    }
+}
