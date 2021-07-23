@@ -1,41 +1,46 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
-using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
+using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.BL.Services
 {
     public class AirplaneTypeService : IAirplaneTypeService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAirplaneTypeRepository _airplaneTypeRepository;
 
-        public AirplaneTypeService(IUnitOfWork unitOfWork)
+        public AirplaneTypeService(IAirplaneTypeRepository airplaneTypeRepository)
         {
-            _unitOfWork = unitOfWork;
+            _airplaneTypeRepository = airplaneTypeRepository;
+        }
+
+        public async Task<IList<DepartmentType>> GetDepartmentTypesAsync(int airplaneTypeId)
+        {
+            return await _airplaneTypeRepository.GetDepartmentTypesAsync(airplaneTypeId);
         }
 
         public async Task<IEnumerable<AirplaneType>> GetAirplaneTypesAsync()
         {
-            return await _unitOfWork.AirplaneTypeRepository.GetAllAsync();
+            return await _airplaneTypeRepository.GetAllAsync();
         }
 
         public async Task AddAirplaneTypeAsync(AirplaneType airplaneType)
         {
-            await _unitOfWork.AirplaneTypeRepository.AddAsync(airplaneType);
-            await _unitOfWork.SaveChangesAsync();
+            await _airplaneTypeRepository.AddAsync(airplaneType);
         }
 
+        //TODO: find what to do
         public async Task AddDepartmentTypeAsync(DepartmentType departmentType)
         {
-            await _unitOfWork.DepartmentTypeRepository.AddAsync(departmentType);
-            await _unitOfWork.SaveChangesAsync();
+            //await _unitOfWork.DepartmentTypeRepository.AddAsync(departmentType);
+            //await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task AddSeatsToAirplaneTypeDepartmentAsync(AirplaneDepartmentSeats airplaneDepartmentSeats)
         {
-            await _unitOfWork.AirplaneDepartmentSeatsRepository.AddAsync(airplaneDepartmentSeats);
-            await _unitOfWork.SaveChangesAsync();
+            //await _unitOfWork.AirplaneDepartmentSeatsRepository.AddAsync(airplaneDepartmentSeats);
+            //await _unitOfWork.SaveChangesAsync();
         }
     }
 }

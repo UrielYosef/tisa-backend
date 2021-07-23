@@ -18,6 +18,17 @@ namespace TisaBackend.WebApi.Controllers
         {
             _airplaneTypeService = airplaneTypeService;
         }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airplaneTypeId}/Departments")]
+        public async Task<IActionResult> GetDepartmentTypesAsync(int airplaneTypeId)
+        {
+            var departmentTypes = await _airplaneTypeService.GetDepartmentTypesAsync(airplaneTypeId);
+
+            return Ok(departmentTypes);
+        }
+
         /*
         [HttpGet]
         [Authorize(Roles = UserRoles.Admin)]

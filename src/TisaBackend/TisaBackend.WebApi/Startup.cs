@@ -50,6 +50,7 @@ namespace TisaBackend.WebApi
             services.AddSingleton<IAirportRepository, AirportRepository>();
             services.AddSingleton<IAirlineRepository, AirlineRepository>();
             services.AddSingleton<IFlightRepository, FlightRepository>();
+            services.AddSingleton<IAirplaneTypeRepository, AirplaneTypeRepository>();
             services.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             services.AddSingleton<IUserService, UserService>();

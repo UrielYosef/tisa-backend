@@ -5,6 +5,6 @@ namespace TisaBackend.Domain.Interfaces.BL
 {
     public interface IFlightService
     {
-        Task AddFlightAsync(Flight flight);
+        Task AddNewFlightAsync(int airlineId, NewFlight newFlight);
     }
 }

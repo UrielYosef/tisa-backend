@@ -6,6 +6,7 @@ namespace TisaBackend.Domain.Interfaces.BL
 {
     public interface IAirplaneTypeService
     {
+        Task<IList<DepartmentType>> GetDepartmentTypesAsync(int airplaneTypeId);
         Task<IEnumerable<AirplaneType>> GetAirplaneTypesAsync();
         Task AddAirplaneTypeAsync(AirplaneType airplaneType);
         Task AddDepartmentTypeAsync(DepartmentType departmentType);

@@ -60,7 +60,7 @@ namespace TisaBackend.BL.Services
         {
             var user = await _userService.FindUserByEmailAsync(newAirlineAgentRequest.Email)
                        ?? await _userService.CreateNewUserAsync(newAirlineAgentRequest.Email, UserRoles.AirlineAgent);
-            await _userService.AddRoleToUserAsync(newAirlineAgentRequest.Email, UserRoles.AirlineManager);
+            await _userService.AddRoleToUserAsync(newAirlineAgentRequest.Email, UserRoles.AirlineAgent);
 
             var isSuccess = await _userService.TryAddUserToAirlineAsync(user.Id, newAirlineAgentRequest.AirlineId);
 

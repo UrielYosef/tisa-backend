@@ -18,11 +18,12 @@ namespace TisaBackend.WebApi.Controllers
             _flightService = flightService;
         }
 
-        [Authorize(Roles = UserRoles.AirlineAgent)]
         [HttpPut]
-        public async Task<IActionResult> AddFlightAsync([FromBody] Flight flight)
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airlineId}")]
+        public async Task<IActionResult> AddFlightAsync(int airlineId, [FromBody] NewFlight newFlight)
         {
-            await _flightService.AddFlightAsync(flight);
+            await _flightService.AddNewFlightAsync(airlineId, newFlight);
 
             return Ok();
         }
