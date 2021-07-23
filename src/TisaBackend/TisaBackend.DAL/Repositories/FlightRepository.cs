@@ -21,6 +21,9 @@ namespace TisaBackend.DAL.Repositories
             using var scope = ServiceScopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
 
+            var x = await context.Flights
+                .Include(flight => flight.Airplane).ToListAsync();
+
             var matchingFlightsByAirline = context.Flights
                 .Include(flight => flight.Airplane)
                 .Where(flight => flight.Airplane.AirplaneTypeId.Equals(airplaneTypeId) &&

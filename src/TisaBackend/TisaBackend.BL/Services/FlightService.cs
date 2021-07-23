@@ -18,6 +18,8 @@ namespace TisaBackend.BL.Services
             _airlineRepository = airlineRepository;
         }
 
+        //TODO: add api for getting flights by airlineId
+
         public async Task AddNewFlightAsync(int airlineId, NewFlight newFlight)
         {
             var airline = await _airlineRepository.GetAirlineAsync(airlineId);
@@ -33,6 +35,7 @@ namespace TisaBackend.BL.Services
                 .ToList();
 
             var availableAirplaneId = airline.Airplanes
+                .Where(airplane => airplane.AirplaneTypeId.Equals(newFlight.AirplaneTypeId))
                 .Select(airplane => airplane.Id)
                 .First(airplaneId=> !intersectingFlightsAirplanesIds.Contains(airplaneId));
 
