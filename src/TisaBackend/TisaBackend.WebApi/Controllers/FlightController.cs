@@ -46,5 +46,14 @@ namespace TisaBackend.WebApi.Controllers
 
             return Ok(filteredFlights);
         }
+
+        [HttpGet]
+        [Route("{flightId}")]
+        public async Task<IActionResult> GetFlightAsync(int flightId)
+        {
+            var flight = await _flightService.GetFullyDetailedFlightAsync(flightId);
+
+            return Ok(flight);
+        }
     }
 }

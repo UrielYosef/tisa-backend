@@ -16,6 +16,25 @@ namespace TisaBackend.DAL.Repositories
 
         }
 
+        public async Task<Flight> GetFlightAsync(int flightId)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            var matchingFlight = await context.Flights
+                .Include(flight => flight.Airplane)
+                .ThenInclude(airplane => airplane.AirplaneType)
+                .Include(flight => flight.Airplane)
+                .ThenInclude(airplane => airplane.Airline)
+                .Include(flight => flight.DepartmentPrices)
+                .ThenInclude(departmentPrice => departmentPrice.Department)
+                .Include(flight => flight.SrcAirport)
+                .Include(flight => flight.DestAirport)
+                .SingleOrDefaultAsync(flight => flight.Id.Equals(flightId));
+
+            return matchingFlight;
+        }
+
         public async Task<IList<Flight>> GetFlightsAsync(int airlineId)
         {
             using var scope = ServiceScopeFactory.CreateScope();

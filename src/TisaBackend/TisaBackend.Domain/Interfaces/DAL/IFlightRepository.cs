@@ -7,6 +7,7 @@ namespace TisaBackend.Domain.Interfaces.DAL
 {
     public interface IFlightRepository : IRepository<Flight>
     {
+        Task<Flight> GetFlightAsync(int flightId);
         Task<IList<Flight>> GetFlightsAsync(int airlineId);
         Task<IList<Flight>> GetFlightsAsync(FlightFilter flightFilter);
         Task<IList<Flight>> GetAvailableFlightsAsync(int numberOfPassengers);

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
@@ -19,6 +19,37 @@ namespace TisaBackend.BL.Services
             _airlineRepository = airlineRepository;
         }
 
+        public async Task<FullyDetailedFight> GetFullyDetailedFlightAsync(int flightId)
+        {
+            var dalFlight = await _flightRepository.GetFlightAsync(flightId);
+            if (dalFlight is null)
+                return null;
+
+            var fullyDetailedFlight = new FullyDetailedFight
+            {
+                FlightId = flightId,
+                AirlineName = dalFlight.Airplane.Airline.Name,
+                AirplaneType = dalFlight.Airplane.AirplaneType.Name,
+                DepartureTime = dalFlight.DepartureTime,
+                ArrivalTime = dalFlight.ArrivalTime,
+                SrcAirport = dalFlight.SrcAirport,
+                DestAirport = dalFlight.DestAirport,
+                DepartmentPrices = new List<DepartmentPrice>()
+            };
+
+            foreach (var departmentPrice in dalFlight.DepartmentPrices)
+            {
+                fullyDetailedFlight.DepartmentPrices.Add(new DepartmentPrice
+                {
+                    DepartmentId = departmentPrice.DepartmentId,
+                    DisplayName = departmentPrice.Department.Name,
+                    Price = departmentPrice.Price
+                });
+            }
+
+            return fullyDetailedFlight;
+        }
+
         public async Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId)
         {
             var nutshellFlights = new List<NutshellFight>();
@@ -29,6 +60,7 @@ namespace TisaBackend.BL.Services
                 var minimalPrice = airlineFlight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
                 var nutshellFlight = new NutshellFight
                 {
+                    FlightId = airlineFlight.Id,
                     MinimalPrice = minimalPrice,
                     AirlineName = airlineFlight.Airplane.Airline.Name,
                     AirplaneType = airlineFlight.Airplane.AirplaneType.Name,
