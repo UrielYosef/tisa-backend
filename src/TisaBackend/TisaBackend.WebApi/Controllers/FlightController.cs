@@ -20,12 +20,22 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpPut]
         [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
-        [Route("{airlineId}")]
+        [Route("Airline/{airlineId}")]
         public async Task<IActionResult> AddFlightAsync(int airlineId, [FromBody] NewFlight newFlight)
         {
             await _flightService.AddNewFlightAsync(airlineId, newFlight);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("Airline/{airlineId}")]
+        public async Task<IActionResult> GetFlightsAsync(int airlineId)
+        {
+            var airlineFlights = await _flightService.GetFlightsInANutshellAsync(airlineId);
+
+            return Ok(airlineFlights);
         }
     }
 }

@@ -502,7 +502,7 @@ namespace TisaBackend.DAL.Migrations
             modelBuilder.Entity("TisaBackend.Domain.Models.DalDepartmentPrice", b =>
                 {
                     b.HasOne("TisaBackend.Domain.Models.Flight", "Flight")
-                        .WithMany()
+                        .WithMany("DepartmentPrices")
                         .HasForeignKey("FlightId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -557,6 +557,11 @@ namespace TisaBackend.DAL.Migrations
             modelBuilder.Entity("TisaBackend.Domain.Models.Airline", b =>
                 {
                     b.Navigation("Airplanes");
+                });
+
+            modelBuilder.Entity("TisaBackend.Domain.Models.Flight", b =>
+                {
+                    b.Navigation("DepartmentPrices");
                 });
 #pragma warning restore 612, 618
         }

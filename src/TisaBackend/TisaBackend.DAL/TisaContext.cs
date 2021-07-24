@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Models;
+using TisaBackend.Domain.Models.Auth;
 
 namespace TisaBackend.DAL
 {

@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.Domain.Interfaces.BL
 {
     public interface IFlightService
     {
+        Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId);
         Task AddNewFlightAsync(int airlineId, NewFlight newFlight);
     }
 }

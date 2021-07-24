@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TisaBackend.Domain.Models
 {
@@ -11,6 +12,7 @@ namespace TisaBackend.Domain.Models
         public int DestAirportId { get; set; }
         public int AirplaneId { get; set; }
 
+        public IList<DalDepartmentPrice> DepartmentPrices { get; set; }
         public Airport SrcAirport { get; set; }
         public Airport DestAirport { get; set; }
         public Airplane Airplane { get; set; }

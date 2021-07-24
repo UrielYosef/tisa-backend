@@ -8,6 +8,7 @@
         public int Price { get; set; }
 
         public Flight Flight { get; set; }
+        public DepartmentType Department { get; set; }
 
         public DalDepartmentPrice()
         {

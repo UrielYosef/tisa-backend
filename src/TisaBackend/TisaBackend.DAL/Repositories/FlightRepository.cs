@@ -16,13 +16,28 @@ namespace TisaBackend.DAL.Repositories
 
         }
 
-        public async Task<IList<Flight>> GetIntersectingFlightsAsync(int airlineId, int airplaneTypeId, DateTime departureTime, DateTime arrivalTime)
+        public async Task<IList<Flight>> GetFlightsAsync(int airlineId)
         {
             using var scope = ServiceScopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
 
-            var x = await context.Flights
-                .Include(flight => flight.Airplane).ToListAsync();
+            var matchingFlightsByAirline = await context.Flights
+                .Include(flight => flight.Airplane)
+                .ThenInclude(airplane => airplane.AirplaneType)
+                .Include(flight => flight.DepartmentPrices)
+                .ThenInclude(departmentPrice => departmentPrice.Department)
+                .Include(flight => flight.SrcAirport)
+                .Include(flight => flight.DestAirport)
+                .Where(flight => flight.Airplane.AirlineId.Equals(airlineId))
+                .ToListAsync();
+
+            return matchingFlightsByAirline;
+        }
+
+        public async Task<IList<Flight>> GetIntersectingFlightsAsync(int airlineId, int airplaneTypeId, DateTime departureTime, DateTime arrivalTime)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
 
             var matchingFlightsByAirline = context.Flights
                 .Include(flight => flight.Airplane)

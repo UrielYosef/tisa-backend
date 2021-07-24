@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
-using TisaBackend.Domain.Auth;
+using TisaBackend.Domain.Models.Auth;
 
 namespace TisaBackend.Domain.Interfaces.BL
 {

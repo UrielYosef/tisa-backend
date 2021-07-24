@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TisaBackend.Domain.Interfaces.BL;
@@ -18,14 +19,39 @@ namespace TisaBackend.BL.Services
             _airlineRepository = airlineRepository;
         }
 
-        //TODO: add api for getting flights by airlineId
+        public async Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId)
+        {
+            var nutshellFlights = new List<NutshellFight>();
+
+            var airlineFlights = await _flightRepository.GetFlightsAsync(airlineId);
+            foreach (var airlineFlight in airlineFlights)
+            {
+                var minimalPrice = airlineFlight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
+                var nutshellFlight = new NutshellFight
+                {
+                    MinimalPrice = minimalPrice,
+                    AirplaneType = airlineFlight.Airplane.AirplaneType.Name,
+                    DepartureTime = airlineFlight.DepartureTime,
+                    ArrivalTime = airlineFlight.ArrivalTime,
+                    SrcAirport = airlineFlight.SrcAirport,
+                    DestAirport = airlineFlight.DestAirport
+                };
+
+                nutshellFlights.Add(nutshellFlight);
+            }
+            
+            return nutshellFlights;
+        }
 
         public async Task AddNewFlightAsync(int airlineId, NewFlight newFlight)
         {
             var airline = await _airlineRepository.GetAirlineAsync(airlineId);
             var intersectingFlights = await _flightRepository
-                .GetIntersectingFlightsAsync(airlineId, newFlight.AirplaneTypeId, newFlight.DepartureTime, newFlight.ArrivalTime);
-            if (intersectingFlights.Count >= airline.Airplanes.Count)
+                .GetIntersectingFlightsAsync(airlineId, newFlight.AirplaneTypeId,
+                    newFlight.DepartureTime, newFlight.ArrivalTime);
+            var airplanesOfCurrentTypesCount = airline.Airplanes
+                .Count(airplane => airplane.AirplaneTypeId.Equals(newFlight.AirplaneTypeId));
+            if (intersectingFlights.Count >= airplanesOfCurrentTypesCount)
             {
                 throw new ApplicationException("Airline does not have enough airplanes for this flight");
             }

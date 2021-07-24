@@ -13,11 +13,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TisaBackend.DAL;
 using TisaBackend.Domain;
-using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Models;
-using SignInResult = TisaBackend.Domain.SignInResult;
+using TisaBackend.Domain.Models.Auth;
+using SignInResult = TisaBackend.Domain.Models.Auth.SignInResult;
 
 namespace TisaBackend.BL.Services
 {

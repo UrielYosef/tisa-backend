@@ -1,29 +1,28 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
-using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
+using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
 
 namespace TisaBackend.BL.Services
 {
     public class AirportService : IAirportService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAirportRepository _airportRepository;
 
-        public AirportService(IUnitOfWork unitOfWork)
+        public AirportService(IAirportRepository airportRepository)
         {
-            _unitOfWork = unitOfWork;
+            _airportRepository = airportRepository;
         }
 
         public async Task<IList<Airport>> GetAirportsAsync(string filter)
         {
-            return await _unitOfWork.AirportRepository.GetAirportsAsync(filter?.ToLower() ?? string.Empty);
+            return await _airportRepository.GetAirportsAsync(filter?.ToLower() ?? string.Empty);
         }
 
         public async Task AddAirportAsync(Airport airport)
         {
-            await _unitOfWork.AirportRepository.AddAsync(airport);
-            await _unitOfWork.SaveChangesAsync();
+            await _airportRepository.AddAsync(airport);
         }
     }
 }
