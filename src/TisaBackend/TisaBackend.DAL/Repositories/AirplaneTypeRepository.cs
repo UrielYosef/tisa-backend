@@ -26,5 +26,23 @@ namespace TisaBackend.DAL.Repositories
                 .Select(airplaneDepartmentSeats => airplaneDepartmentSeats.DepartmentType)
                 .ToListAsync();
         }
+
+        public async Task AddDepartmentTypeAsync(DepartmentType departmentType)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            await context.DepartmentTypes.AddAsync(departmentType);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AddSeatsToAirplaneTypeDepartmentAsync(AirplaneDepartmentSeats airplaneDepartmentSeats)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            await context.AirplaneDepartmentSeats.AddAsync(airplaneDepartmentSeats);
+            await context.SaveChangesAsync();
+        }
     }
 }

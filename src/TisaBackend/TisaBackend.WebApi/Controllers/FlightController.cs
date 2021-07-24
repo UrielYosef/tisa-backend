@@ -37,5 +37,14 @@ namespace TisaBackend.WebApi.Controllers
 
             return Ok(airlineFlights);
         }
+
+        [HttpPost]
+        [Route("Filter")]
+        public async Task<IActionResult> FilterFlightsAsync([FromBody] FlightFilter flightFilter)
+        {
+            var filteredFlights = await _flightService.FilterFlightsAsync(flightFilter);
+
+            return Ok(filteredFlights);
+        }
     }
 }

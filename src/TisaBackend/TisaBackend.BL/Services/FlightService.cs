@@ -30,6 +30,7 @@ namespace TisaBackend.BL.Services
                 var nutshellFlight = new NutshellFight
                 {
                     MinimalPrice = minimalPrice,
+                    AirlineName = airlineFlight.Airplane.Airline.Name,
                     AirplaneType = airlineFlight.Airplane.AirplaneType.Name,
                     DepartureTime = airlineFlight.DepartureTime,
                     ArrivalTime = airlineFlight.ArrivalTime,
@@ -40,6 +41,31 @@ namespace TisaBackend.BL.Services
                 nutshellFlights.Add(nutshellFlight);
             }
             
+            return nutshellFlights;
+        }
+
+        public async Task<IList<NutshellFight>> FilterFlightsAsync(FlightFilter flightFilter)
+        {
+            var nutshellFlights = new List<NutshellFight>();
+
+            var airlineFlights = await _flightRepository.GetFlightsAsync(flightFilter);
+            foreach (var airlineFlight in airlineFlights)
+            {
+                var minimalPrice = airlineFlight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
+                var nutshellFlight = new NutshellFight
+                {
+                    MinimalPrice = minimalPrice,
+                    AirlineName = airlineFlight.Airplane.Airline.Name,
+                    AirplaneType = airlineFlight.Airplane.AirplaneType.Name,
+                    DepartureTime = airlineFlight.DepartureTime,
+                    ArrivalTime = airlineFlight.ArrivalTime,
+                    SrcAirport = airlineFlight.SrcAirport,
+                    DestAirport = airlineFlight.DestAirport
+                };
+
+                nutshellFlights.Add(nutshellFlight);
+            }
+
             return nutshellFlights;
         }
 

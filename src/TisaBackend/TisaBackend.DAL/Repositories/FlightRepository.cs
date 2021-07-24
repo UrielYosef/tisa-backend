@@ -23,15 +23,55 @@ namespace TisaBackend.DAL.Repositories
 
             var matchingFlightsByAirline = await context.Flights
                 .Include(flight => flight.Airplane)
-                .ThenInclude(airplane => airplane.AirplaneType)
+                    .ThenInclude(airplane => airplane.AirplaneType)
+                .Include(flight => flight.Airplane)
+                    .ThenInclude(airplane => airplane.Airline)
                 .Include(flight => flight.DepartmentPrices)
-                .ThenInclude(departmentPrice => departmentPrice.Department)
+                    .ThenInclude(departmentPrice => departmentPrice.Department)
                 .Include(flight => flight.SrcAirport)
                 .Include(flight => flight.DestAirport)
                 .Where(flight => flight.Airplane.AirlineId.Equals(airlineId))
                 .ToListAsync();
 
             return matchingFlightsByAirline;
+        }
+
+        public async Task<IList<Flight>> GetFlightsAsync(FlightFilter flightFilter)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            var matchingFlights = context.Flights
+                .Include(flight => flight.Airplane)
+                    .ThenInclude(airplane => airplane.AirplaneType)
+                .Include(flight => flight.Airplane)
+                    .ThenInclude(airplane => airplane.Airline)
+                .Include(flight => flight.DepartmentPrices)
+                    .ThenInclude(departmentPrice => departmentPrice.Department)
+                .Include(flight => flight.SrcAirport)
+                .Include(flight => flight.DestAirport)
+                .Where(flight => flightFilter.MinDepartureTime <= flight.DepartureTime);
+
+            if (flightFilter.MaxDepartureTime != default)
+                matchingFlights = matchingFlights
+                    .Where(flight => flightFilter.MaxDepartureTime >= flight.DepartureTime);
+            if(!flightFilter.SrcAirportId.Equals(-1))
+                matchingFlights = matchingFlights
+                    .Where(flight => flight.SrcAirportId.Equals(flightFilter.SrcAirportId));
+            if (!flightFilter.DestAirportId.Equals(-1))
+                matchingFlights = matchingFlights
+                    .Where(flight => flight.DestAirportId.Equals(flightFilter.DestAirportId));
+
+            return await matchingFlights.ToListAsync();
+        }
+
+        //TODO: complete this for FilterFlightsAsync() after flights orders tables exists
+        public async Task<IList<Flight>> GetAvailableFlightsAsync(int numberOfPassengers)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            return null;
         }
 
         public async Task<IList<Flight>> GetIntersectingFlightsAsync(int airlineId, int airplaneTypeId, DateTime departureTime, DateTime arrivalTime)
