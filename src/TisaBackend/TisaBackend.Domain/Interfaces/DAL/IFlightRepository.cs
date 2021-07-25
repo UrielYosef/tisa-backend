@@ -10,8 +10,9 @@ namespace TisaBackend.Domain.Interfaces.DAL
         Task<Flight> GetFlightAsync(int flightId);
         Task<IList<Flight>> GetFlightsAsync(int airlineId);
         Task<IList<Flight>> GetFlightsAsync(FlightFilter flightFilter);
-        Task<IList<Flight>> GetAvailableFlightsAsync(int numberOfPassengers);
         Task<IList<Flight>> GetIntersectingFlightsAsync(int airlineId, int airplaneTypeId, DateTime departureTime, DateTime arrivalTime);
         Task AddDepartmentPricesAsync(IList<DalDepartmentPrice> departmentPrices);
+        Task AddFlightOrderAsync(FlightOrder order);
+        Task<int> GetDepartmentFlightOrdersAsync(int flightId, int departmentId);
     }
 }

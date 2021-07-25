@@ -26,6 +26,7 @@ namespace TisaBackend.DAL
         public virtual DbSet<Airplane> Airplanes { get; set; }
         public virtual DbSet<Flight> Flights { get; set; }
         public virtual DbSet<DalDepartmentPrice> DepartmentPrices { get; set; }
+        public virtual DbSet<FlightOrder> FlightOrders { get; set; }
 
         #endregion
 

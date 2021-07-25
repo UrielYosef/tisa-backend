@@ -13,6 +13,6 @@ namespace TisaBackend.Domain.Models
         public Airport SrcAirport{ get; set; }
         public Airport DestAirport { get; set; }
         public IList<DepartmentPrice> DepartmentPrices { get; set; }
-        //TODO: add list of departments unoccupied seats 
+        public IDictionary<int, int> DepartmentIdToUnoccupiedSeats { get; set; }
     }
 }

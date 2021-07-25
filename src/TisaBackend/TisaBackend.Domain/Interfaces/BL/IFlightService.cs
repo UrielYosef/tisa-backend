@@ -10,5 +10,6 @@ namespace TisaBackend.Domain.Interfaces.BL
         Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId);
         Task<IList<NutshellFight>> FilterFlightsAsync(FlightFilter flightFilter);
         Task AddNewFlightAsync(int airlineId, NewFlight newFlight);
+        Task AddFlightOrderAsync(FlightOrder order, string username);
     }
 }

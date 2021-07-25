@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TisaBackend.DAL;
 using TisaBackend.Domain;
-using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Models;
 using TisaBackend.Domain.Models.Auth;
@@ -188,6 +187,19 @@ namespace TisaBackend.BL.Services
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
             return await userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<string> GetUserIdByUsername(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                return null;
+
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+            var user = await userManager.FindByNameAsync(username);
+
+            return user?.Id;
         }
 
         public async Task<User> CreateNewUserAsync(string email, string role)

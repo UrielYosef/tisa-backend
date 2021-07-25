@@ -12,11 +12,18 @@ namespace TisaBackend.BL.Services
     {
         private readonly IFlightRepository _flightRepository;
         private readonly IAirlineRepository _airlineRepository;
+        private readonly IAirplaneTypeRepository _airplaneTypeRepository;
+        private readonly IUserService _userService;
 
-        public FlightService(IFlightRepository flightRepository, IAirlineRepository airlineRepository)
+        public FlightService(IUserService userService,
+            IFlightRepository flightRepository,
+            IAirlineRepository airlineRepository,
+            IAirplaneTypeRepository airplaneTypeRepository)
         {
+            _userService = userService;
             _flightRepository = flightRepository;
             _airlineRepository = airlineRepository;
+            _airplaneTypeRepository = airplaneTypeRepository;
         }
 
         public async Task<FullyDetailedFight> GetFullyDetailedFlightAsync(int flightId)
@@ -34,7 +41,8 @@ namespace TisaBackend.BL.Services
                 ArrivalTime = dalFlight.ArrivalTime,
                 SrcAirport = dalFlight.SrcAirport,
                 DestAirport = dalFlight.DestAirport,
-                DepartmentPrices = new List<DepartmentPrice>()
+                DepartmentPrices = new List<DepartmentPrice>(),
+                DepartmentIdToUnoccupiedSeats = new Dictionary<int, int>()
             };
 
             foreach (var departmentPrice in dalFlight.DepartmentPrices)
@@ -45,6 +53,10 @@ namespace TisaBackend.BL.Services
                     DisplayName = departmentPrice.Department.Name,
                     Price = departmentPrice.Price
                 });
+
+                var unoccupiedSeats = await GetUnoccupiedSeatsAsync(flightId, departmentPrice.DepartmentId);
+                fullyDetailedFlight.DepartmentIdToUnoccupiedSeats
+                    .Add(departmentPrice.DepartmentId, unoccupiedSeats);
             }
 
             return fullyDetailedFlight;
@@ -84,6 +96,14 @@ namespace TisaBackend.BL.Services
             foreach (var airlineFlight in airlineFlights)
             {
                 var minimalPrice = airlineFlight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
+                var minimalPriceDepartmentId = airlineFlight.DepartmentPrices
+                    .Where(departmentPrice => departmentPrice.Price.Equals(minimalPrice))
+                    .Select(departmentPrice => departmentPrice.DepartmentId)
+                    .FirstOrDefault();
+                var unoccupiedSeats = await GetUnoccupiedSeatsAsync(airlineFlight.Id, minimalPriceDepartmentId);
+                if(unoccupiedSeats < flightFilter.NumberOfPassengers)
+                    continue;
+
                 var nutshellFlight = new NutshellFight
                 {
                     MinimalPrice = minimalPrice,
@@ -140,6 +160,30 @@ namespace TisaBackend.BL.Services
                 .ToList();
 
             await _flightRepository.AddDepartmentPricesAsync(dalDepartmentPrices);
+        }
+
+        public async Task AddFlightOrderAsync(FlightOrder order, string username)
+        {
+            var userId = await _userService.GetUserIdByUsername(username);
+            order.UserId = userId;
+            var unoccupiedSeats = await GetUnoccupiedSeatsAsync(order.FlightId, order.DepartmentId);
+            if (unoccupiedSeats < order.SeatsQuantity)
+            {
+                throw new ApplicationException("Flight does not have enough seats at this department");
+            }
+
+            await _flightRepository.AddFlightOrderAsync(order);
+        }
+
+        private async Task<int> GetUnoccupiedSeatsAsync(int flightId, int departmentId)
+        {
+            var flight = await _flightRepository.GetFlightAsync(flightId);
+            var airplaneTypeId = flight.Airplane.AirplaneTypeId;
+            var departmentSeats = await _airplaneTypeRepository.GetSeatsQuantityAsync(airplaneTypeId, departmentId);
+
+            var flightOrders = await _flightRepository.GetDepartmentFlightOrdersAsync(flightId, departmentId);
+
+            return departmentSeats - flightOrders;
         }
     }
 }

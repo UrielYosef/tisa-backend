@@ -23,11 +23,11 @@ namespace TisaBackend.DAL.Repositories
 
             var matchingFlight = await context.Flights
                 .Include(flight => flight.Airplane)
-                .ThenInclude(airplane => airplane.AirplaneType)
+                    .ThenInclude(airplane => airplane.AirplaneType)
                 .Include(flight => flight.Airplane)
-                .ThenInclude(airplane => airplane.Airline)
+                    .ThenInclude(airplane => airplane.Airline)
                 .Include(flight => flight.DepartmentPrices)
-                .ThenInclude(departmentPrice => departmentPrice.Department)
+                    .ThenInclude(departmentPrice => departmentPrice.Department)
                 .Include(flight => flight.SrcAirport)
                 .Include(flight => flight.DestAirport)
                 .SingleOrDefaultAsync(flight => flight.Id.Equals(flightId));
@@ -84,15 +84,6 @@ namespace TisaBackend.DAL.Repositories
             return await matchingFlights.ToListAsync();
         }
 
-        //TODO: complete this for FilterFlightsAsync() after flights orders tables exists
-        public async Task<IList<Flight>> GetAvailableFlightsAsync(int numberOfPassengers)
-        {
-            using var scope = ServiceScopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
-
-            return null;
-        }
-
         public async Task<IList<Flight>> GetIntersectingFlightsAsync(int airlineId, int airplaneTypeId, DateTime departureTime, DateTime arrivalTime)
         {
             using var scope = ServiceScopeFactory.CreateScope();
@@ -119,6 +110,26 @@ namespace TisaBackend.DAL.Repositories
 
             await context.DepartmentPrices.AddRangeAsync(departmentPrices);
             await context.SaveChangesAsync();
+        }
+
+        public async Task AddFlightOrderAsync(FlightOrder order)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            await context.FlightOrders.AddRangeAsync(order);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetDepartmentFlightOrdersAsync(int flightId, int departmentId)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            return await context.FlightOrders
+                .Where(order => order.FlightId.Equals(flightId) &&
+                                order.DepartmentId.Equals(departmentId))
+                .SumAsync(order => order.SeatsQuantity);
         }
     }
 }

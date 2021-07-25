@@ -10,6 +10,7 @@ namespace TisaBackend.Domain.Interfaces.BL
         Task<SignInResult> SignInAsync(SignInModel signInModel);
         Task<SignUpResult> SignUpAsync(SignUpModel signUpModel);
         Task<User> FindUserByEmailAsync(string email);
+        Task<string> GetUserIdByUsername(string username);
         Task<User> CreateNewUserAsync(string email, string role);
         Task AddRoleToUserAsync(string userEmail, string role);
         Task<bool> TryAddUserToAirlineAsync(string userId, int airlineId);

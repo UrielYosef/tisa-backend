@@ -55,5 +55,14 @@ namespace TisaBackend.WebApi.Controllers
 
             return Ok(flight);
         }
+
+        [HttpPut]
+        [Route("Order")]
+        public async Task<IActionResult> AddFlightOrderAsync([FromBody] FlightOrder order)
+        {
+            await _flightService.AddFlightOrderAsync(order, User.Identity.Name);
+
+            return Ok();
+        }
     }
 }

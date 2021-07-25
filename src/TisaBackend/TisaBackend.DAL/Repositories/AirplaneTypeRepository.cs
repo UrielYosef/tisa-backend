@@ -15,6 +15,18 @@ namespace TisaBackend.DAL.Repositories
 
         }
 
+        public async Task<int> GetSeatsQuantityAsync(int airplaneTypeId, int departmentId)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            return await context.AirplaneDepartmentSeats
+                .Where(departmentSeat => departmentSeat.DepartmentTypeId.Equals(departmentId) &&
+                                         departmentSeat.AirplaneTypeId.Equals(airplaneTypeId))
+                .Select(departmentSeat => departmentSeat.SeatsQuantity)
+                .SingleOrDefaultAsync();
+        }
+
         public async Task<IList<DepartmentType>> GetDepartmentTypesAsync(int airplaneTypeId)
         {
             using var scope = ServiceScopeFactory.CreateScope();
