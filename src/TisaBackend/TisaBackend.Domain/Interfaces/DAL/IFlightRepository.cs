@@ -8,7 +8,8 @@ namespace TisaBackend.Domain.Interfaces.DAL
     public interface IFlightRepository : IRepository<Flight>
     {
         Task<Flight> GetFlightAsync(int flightId);
-        Task<IList<Flight>> GetFlightsAsync(int airlineId);
+        Task<IList<Flight>> GetFlightsByAirlineAsync(int airlineId);
+        Task<IList<Flight>> GetFlightsByUserAsync(string userId, bool isFuture);
         Task<IList<Flight>> GetFlightsAsync(FlightFilter flightFilter);
         Task<IList<Flight>> GetIntersectingFlightsAsync(int airlineId, int airplaneTypeId, DateTime departureTime, DateTime arrivalTime);
         Task AddDepartmentPricesAsync(IList<DalDepartmentPrice> departmentPrices);

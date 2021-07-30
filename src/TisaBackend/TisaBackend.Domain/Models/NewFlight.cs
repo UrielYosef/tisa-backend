@@ -10,6 +10,6 @@ namespace TisaBackend.Domain.Models
         public int DestAirportId { get; set; }
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
-        public IList<DepartmentPrice> DepartmentPrices { get; set; }
+        public IList<DepartmentData> DepartmentPrices { get; set; }
     }
 }
