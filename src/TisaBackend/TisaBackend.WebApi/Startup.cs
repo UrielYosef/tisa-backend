@@ -12,10 +12,10 @@ using Microsoft.IdentityModel.Tokens;
 using TisaBackend.BL.Services;
 using TisaBackend.DAL;
 using TisaBackend.DAL.Repositories;
-using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Interfaces;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
+using TisaBackend.Domain.Models.Auth;
 
 namespace TisaBackend.WebApi
 {
@@ -50,13 +50,11 @@ namespace TisaBackend.WebApi
             services.AddSingleton<IAirportRepository, AirportRepository>();
             services.AddSingleton<IAirlineRepository, AirlineRepository>();
             services.AddSingleton<IFlightRepository, FlightRepository>();
-            services.AddSingleton<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IAirplaneTypeRepository, AirplaneTypeRepository>();
 
             services.AddSingleton<IUserService, UserService>();
-
             services.AddSingleton<IAirportService, AirportService>();
             services.AddSingleton<IAirplaneTypeService, AirplaneTypeService>();
-
             services.AddSingleton<IAirlineService, AirlineService>();
             services.AddSingleton<IFlightService, FlightService>();
 
@@ -69,14 +67,14 @@ namespace TisaBackend.WebApi
 
         public void ConfigureDal(IServiceCollection services)
         {
-            //Entity Framework
+            //Entity Framework with Postgres DB
             services.AddDbContext<TisaContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
         }
 
         public void ConfigureAuth(IServiceCollection services)
         {
-            //Identity
+            //Identity management with JWT and Identity library
             services.AddIdentity<User, IdentityRole>(options =>
                 {
                     options.Password.RequireDigit = true;

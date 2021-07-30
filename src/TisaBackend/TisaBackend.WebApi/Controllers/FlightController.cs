@@ -18,11 +18,49 @@ namespace TisaBackend.WebApi.Controllers
             _flightService = flightService;
         }
 
-        [Authorize(Roles = UserRoles.AirlineAgent)]
         [HttpPut]
-        public async Task<IActionResult> AddFlightAsync([FromBody] Flight flight)
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("Airline/{airlineId}")]
+        public async Task<IActionResult> AddFlightAsync(int airlineId, [FromBody] NewFlight newFlight)
         {
-            await _flightService.AddFlightAsync(flight);
+            await _flightService.AddNewFlightAsync(airlineId, newFlight);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("Airline/{airlineId}")]
+        public async Task<IActionResult> GetFlightsAsync(int airlineId)
+        {
+            var airlineFlights = await _flightService.GetFlightsInANutshellAsync(airlineId);
+
+            return Ok(airlineFlights);
+        }
+
+        [HttpPost]
+        [Route("Filter")]
+        public async Task<IActionResult> FilterFlightsAsync([FromBody] FlightFilter flightFilter)
+        {
+            var filteredFlights = await _flightService.FilterFlightsAsync(flightFilter);
+
+            return Ok(filteredFlights);
+        }
+
+        [HttpGet]
+        [Route("{flightId}")]
+        public async Task<IActionResult> GetFlightAsync(int flightId)
+        {
+            var flight = await _flightService.GetFullyDetailedFlightAsync(flightId);
+
+            return Ok(flight);
+        }
+
+        [HttpPut]
+        [Route("Order")]
+        public async Task<IActionResult> AddFlightOrderAsync([FromBody] FlightOrder order)
+        {
+            await _flightService.AddFlightOrderAsync(order, User.Identity.Name);
 
             return Ok();
         }

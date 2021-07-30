@@ -11,8 +11,8 @@ namespace TisaBackend.Domain.Models
         public int SrcAirportId { get; set; }
         public int DestAirportId { get; set; }
         public int AirplaneId { get; set; }
-        public IList<FlightPrice> FlightPrices { get; set; }
 
+        public IList<DalDepartmentPrice> DepartmentPrices { get; set; }
         public Airport SrcAirport { get; set; }
         public Airport DestAirport { get; set; }
         public Airplane Airplane { get; set; }

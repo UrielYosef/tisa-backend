@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using TisaBackend.Domain;
+using TisaBackend.Domain.Models.Auth;
 using TisaBackend.Domain.Interfaces.BL;
 
 namespace TisaBackend.WebApi.Controllers
@@ -36,7 +38,7 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = UserRoles.Admin)]
+        [Authorize(Roles = UserRoles.Admin)]
         [Route("RegisterAdmin")]
         public async Task<IActionResult> RegisterAdminAsync([FromBody] SignUpModel signUpModel)
         {

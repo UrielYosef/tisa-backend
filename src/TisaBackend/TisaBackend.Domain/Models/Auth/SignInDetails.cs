@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TisaBackend.Domain
+namespace TisaBackend.Domain.Models.Auth
 {
     public class SignInDetails
     {
