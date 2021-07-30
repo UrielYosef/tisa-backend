@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TisaBackend.DAL;
@@ -9,9 +10,10 @@ using TisaBackend.DAL;
 namespace TisaBackend.DAL.Migrations
 {
     [DbContext(typeof(TisaContext))]
-    partial class TisaContextModelSnapshot : ModelSnapshot
+    [Migration("20210723125823_flights")]
+    partial class flights
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,6 +151,70 @@ namespace TisaBackend.DAL.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("TisaBackend.Domain.Auth.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers");
+                });
+
             modelBuilder.Entity("TisaBackend.Domain.Models.Airline", b =>
                 {
                     b.Property<int>("Id")
@@ -253,70 +319,6 @@ namespace TisaBackend.DAL.Migrations
                     b.ToTable("Airports");
                 });
 
-            modelBuilder.Entity("TisaBackend.Domain.Models.Auth.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
-
-                    b.ToTable("AspNetUsers");
-                });
-
             modelBuilder.Entity("TisaBackend.Domain.Models.DalDepartmentPrice", b =>
                 {
                     b.Property<int>("Id")
@@ -335,11 +337,9 @@ namespace TisaBackend.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentId");
-
                     b.HasIndex("FlightId");
 
-                    b.ToTable("DepartmentPrices");
+                    b.ToTable("DalDepartmentPrices");
                 });
 
             modelBuilder.Entity("TisaBackend.Domain.Models.DepartmentType", b =>
@@ -390,32 +390,6 @@ namespace TisaBackend.DAL.Migrations
                     b.ToTable("Flights");
                 });
 
-            modelBuilder.Entity("TisaBackend.Domain.Models.FlightOrder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<int>("DepartmentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FlightId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SeatsQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FlightId");
-
-                    b.ToTable("FlightOrders");
-                });
-
             modelBuilder.Entity("TisaBackend.Domain.Models.UserToAirline", b =>
                 {
                     b.Property<int>("Id")
@@ -449,7 +423,7 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TisaBackend.Domain.Models.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -458,7 +432,7 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TisaBackend.Domain.Models.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -473,7 +447,7 @@ namespace TisaBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TisaBackend.Domain.Models.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -482,7 +456,7 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TisaBackend.Domain.Models.Auth.User", null)
+                    b.HasOne("TisaBackend.Domain.Auth.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -529,19 +503,11 @@ namespace TisaBackend.DAL.Migrations
 
             modelBuilder.Entity("TisaBackend.Domain.Models.DalDepartmentPrice", b =>
                 {
-                    b.HasOne("TisaBackend.Domain.Models.DepartmentType", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TisaBackend.Domain.Models.Flight", "Flight")
-                        .WithMany("DepartmentPrices")
+                        .WithMany()
                         .HasForeignKey("FlightId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Department");
 
                     b.Navigation("Flight");
                 });
@@ -573,17 +539,6 @@ namespace TisaBackend.DAL.Migrations
                     b.Navigation("SrcAirport");
                 });
 
-            modelBuilder.Entity("TisaBackend.Domain.Models.FlightOrder", b =>
-                {
-                    b.HasOne("TisaBackend.Domain.Models.Flight", "Flight")
-                        .WithMany()
-                        .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Flight");
-                });
-
             modelBuilder.Entity("TisaBackend.Domain.Models.UserToAirline", b =>
                 {
                     b.HasOne("TisaBackend.Domain.Models.Airline", "Airline")
@@ -592,7 +547,7 @@ namespace TisaBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TisaBackend.Domain.Models.Auth.User", "User")
+                    b.HasOne("TisaBackend.Domain.Auth.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
@@ -604,11 +559,6 @@ namespace TisaBackend.DAL.Migrations
             modelBuilder.Entity("TisaBackend.Domain.Models.Airline", b =>
                 {
                     b.Navigation("Airplanes");
-                });
-
-            modelBuilder.Entity("TisaBackend.Domain.Models.Flight", b =>
-                {
-                    b.Navigation("DepartmentPrices");
                 });
 #pragma warning restore 612, 618
         }

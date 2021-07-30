@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TisaBackend.Domain;
-using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Models;
+using TisaBackend.Domain.Interfaces.BL;
 
 namespace TisaBackend.WebApi.Controllers
 {
-    //TODO: remove comments at the end
     [Route("api/[controller]")]
     [ApiController]
     public class AirplaneTypeController : ControllerBase
@@ -18,7 +17,17 @@ namespace TisaBackend.WebApi.Controllers
         {
             _airplaneTypeService = airplaneTypeService;
         }
-        /*
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManagerAndAirlineAgent)]
+        [Route("{airplaneTypeId}/Departments")]
+        public async Task<IActionResult> GetDepartmentTypesAsync(int airplaneTypeId)
+        {
+            var departmentTypes = await _airplaneTypeService.GetDepartmentTypesAsync(airplaneTypeId);
+
+            return Ok(departmentTypes);
+        }
+
         [HttpGet]
         [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> GetAirplaneTypesAsync()
@@ -56,6 +65,6 @@ namespace TisaBackend.WebApi.Controllers
             await _airplaneTypeService.AddSeatsToAirplaneTypeDepartmentAsync(airplaneDepartmentSeats);
 
             return Ok();
-        }*/
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using TisaBackend.Domain.Auth;
+﻿using TisaBackend.Domain.Models.Auth;
 
 namespace TisaBackend.Domain.Models
 {

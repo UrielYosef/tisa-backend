@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using TisaBackend.Domain.Models;
 
-namespace TisaBackend.Domain.Interfaces.BL
+namespace TisaBackend.Domain.Interfaces.DAL
 {
-    public interface IAirplaneTypeService
+    public interface IAirplaneTypeRepository : IRepository<AirplaneType>
     {
+        Task<int> GetSeatsQuantityAsync(int airplaneTypeId, int departmentId);
         Task<IList<DepartmentType>> GetDepartmentTypesAsync(int airplaneTypeId);
-        Task<IEnumerable<AirplaneType>> GetAirplaneTypesAsync();
-        Task AddAirplaneTypeAsync(AirplaneType airplaneType);
         Task AddDepartmentTypeAsync(DepartmentType departmentType);
         Task AddSeatsToAirplaneTypeDepartmentAsync(AirplaneDepartmentSeats airplaneDepartmentSeats);
     }

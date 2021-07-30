@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using TisaBackend.Domain.Auth;
 using TisaBackend.Domain.Models;
+using TisaBackend.Domain.Models.Auth;
 
 namespace TisaBackend.DAL
 {
@@ -24,8 +24,9 @@ namespace TisaBackend.DAL
         public virtual DbSet<UserToAirline> UserToAirline { get; set; }
         public virtual DbSet<Airline> Airlines { get; set; }
         public virtual DbSet<Airplane> Airplanes { get; set; }
-        //public virtual DbSet<Flight> Flights { get; set; }
-        //public virtual DbSet<FlightPrice> FlightPrices { get; set; }
+        public virtual DbSet<Flight> Flights { get; set; }
+        public virtual DbSet<DalDepartmentPrice> DepartmentPrices { get; set; }
+        public virtual DbSet<FlightOrder> FlightOrders { get; set; }
 
         #endregion
 
@@ -35,6 +36,9 @@ namespace TisaBackend.DAL
 
             builder.Entity<UserToAirline>()
                 .ToTable("UserToAirline");
+
+            builder.Entity<DalDepartmentPrice>()
+                .ToTable("DepartmentPrices");
 
             /*builder.Entity<FlightPrice>().HasKey(flightPrice => new {
                 flightPrice.FlightId,
