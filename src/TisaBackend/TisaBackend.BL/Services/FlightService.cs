@@ -78,9 +78,8 @@ namespace TisaBackend.BL.Services
 
         public async Task<IList<NutshellFight>> FilterFlightsAsync(FlightFilter flightFilter)
         {
-            var nutshellFlights = new List<NutshellFight>();
-
-            var airlineFlights = await _flightRepository.GetFlightsAsync(flightFilter);
+            var airlineFlights = (await _flightRepository.GetFlightsAsync(flightFilter)).ToList();
+            var notEnoughSpaceflightsId = new List<int>();
             foreach (var airlineFlight in airlineFlights)
             {
                 var minimalPrice = airlineFlight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
@@ -89,22 +88,15 @@ namespace TisaBackend.BL.Services
                     .Select(departmentPrice => departmentPrice.DepartmentId)
                     .FirstOrDefault();
                 var seatsAndUnoccupiedSeats = await GetSeatsAndUnoccupiedSeatsAsync(airlineFlight.Id, minimalPriceDepartmentId);
-                if(seatsAndUnoccupiedSeats.UnoccupiedSeats < flightFilter.NumberOfPassengers)
-                    continue;
-
-                var nutshellFlight = new NutshellFight
-                {
-                    MinimalPrice = minimalPrice,
-                    AirlineName = airlineFlight.Airplane.Airline.Name,
-                    AirplaneType = airlineFlight.Airplane.AirplaneType.Name,
-                    DepartureTime = airlineFlight.DepartureTime,
-                    ArrivalTime = airlineFlight.ArrivalTime,
-                    SrcAirport = airlineFlight.SrcAirport,
-                    DestAirport = airlineFlight.DestAirport
-                };
-
-                nutshellFlights.Add(nutshellFlight);
+                if (seatsAndUnoccupiedSeats.UnoccupiedSeats < flightFilter.NumberOfPassengers)
+                    notEnoughSpaceflightsId.Add(airlineFlight.Id);
             }
+
+            var suitableFlights = airlineFlights
+                .Where(airlineFlight => !notEnoughSpaceflightsId.Contains(airlineFlight.Id))
+                .ToList();
+
+            var nutshellFlights = ParseFlights(suitableFlights);
 
             return nutshellFlights;
         }
