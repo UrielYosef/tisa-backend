@@ -189,6 +189,14 @@ namespace TisaBackend.BL.Services
             return await userManager.FindByEmailAsync(email);
         }
 
+        public async Task<User> FindUserByUsernameAsync(string username)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+            return await userManager.FindByNameAsync(username);
+        }
+
         public async Task<string> GetUserIdByUsername(string username)
         {
             if (string.IsNullOrEmpty(username))
@@ -288,6 +296,33 @@ namespace TisaBackend.BL.Services
                 .ToListAsync();
 
             return airlineUsersEmail;
+        }
+
+        public async Task<bool> IsAuthorizeForAirlineAsync(int airlineId, string username, bool isAdmin)
+        {
+            if (isAdmin)
+                return true;
+
+            var user = await FindUserByUsernameAsync(username);
+            var userEmail = user?.Email;
+            var airlineEmails = await GetUsersEmails(airlineId);
+
+            return !string.IsNullOrEmpty(userEmail) && airlineEmails.Contains(userEmail);
+        }
+
+        public async Task<bool> IsAirlineManager(int airlineId, string username, bool isAdmin)
+        {
+            if (isAdmin)
+                return true;
+
+            var user = await FindUserByUsernameAsync(username);
+            if (user is null)
+                return false;
+
+            var userEmail = user.Email;
+            var airline = await GetAirlineAsync(user.Id);
+
+            return airline.Id.Equals(airlineId) && userEmail.Equals(airline.AirlineManagerEmail);
         }
 
         private async Task<Airline> GetAirlineAsync(string userId)

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
@@ -41,50 +42,37 @@ namespace TisaBackend.BL.Services
                 ArrivalTime = dalFlight.ArrivalTime,
                 SrcAirport = dalFlight.SrcAirport,
                 DestAirport = dalFlight.DestAirport,
-                DepartmentPrices = new List<DepartmentPrice>(),
-                DepartmentIdToUnoccupiedSeats = new Dictionary<int, int>()
+                DepartmentPrices = new List<DepartmentData>(),
             };
 
             foreach (var departmentPrice in dalFlight.DepartmentPrices)
             {
-                fullyDetailedFlight.DepartmentPrices.Add(new DepartmentPrice
+                var seatsAndUnoccupiedSeats = await GetSeatsAndUnoccupiedSeatsAsync(flightId, departmentPrice.DepartmentId);
+                fullyDetailedFlight.DepartmentPrices.Add(new DepartmentData
                 {
                     DepartmentId = departmentPrice.DepartmentId,
                     DisplayName = departmentPrice.Department.Name,
-                    Price = departmentPrice.Price
+                    Price = departmentPrice.Price,
+                    Seats = seatsAndUnoccupiedSeats.Seats,
+                    AvailableSeats = seatsAndUnoccupiedSeats.UnoccupiedSeats
                 });
-
-                var unoccupiedSeats = await GetUnoccupiedSeatsAsync(flightId, departmentPrice.DepartmentId);
-                fullyDetailedFlight.DepartmentIdToUnoccupiedSeats
-                    .Add(departmentPrice.DepartmentId, unoccupiedSeats);
             }
 
             return fullyDetailedFlight;
         }
 
-        public async Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId)
+        public async Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId, string username, bool isAdmin)
         {
-            var nutshellFlights = new List<NutshellFight>();
-
-            var airlineFlights = await _flightRepository.GetFlightsAsync(airlineId);
-            foreach (var airlineFlight in airlineFlights)
+            var isAuthorizeForAirline = await _userService.IsAuthorizeForAirlineAsync(airlineId, username, isAdmin);
+            if (!isAuthorizeForAirline)
             {
-                var minimalPrice = airlineFlight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
-                var nutshellFlight = new NutshellFight
-                {
-                    FlightId = airlineFlight.Id,
-                    MinimalPrice = minimalPrice,
-                    AirlineName = airlineFlight.Airplane.Airline.Name,
-                    AirplaneType = airlineFlight.Airplane.AirplaneType.Name,
-                    DepartureTime = airlineFlight.DepartureTime,
-                    ArrivalTime = airlineFlight.ArrivalTime,
-                    SrcAirport = airlineFlight.SrcAirport,
-                    DestAirport = airlineFlight.DestAirport
-                };
-
-                nutshellFlights.Add(nutshellFlight);
+                throw new ApplicationException("User is not authorize for current airline");
             }
-            
+
+            var airlineFlights = await _flightRepository.GetFlightsByAirlineAsync(airlineId);
+
+            var nutshellFlights = ParseFlights(airlineFlights);
+
             return nutshellFlights;
         }
 
@@ -100,8 +88,8 @@ namespace TisaBackend.BL.Services
                     .Where(departmentPrice => departmentPrice.Price.Equals(minimalPrice))
                     .Select(departmentPrice => departmentPrice.DepartmentId)
                     .FirstOrDefault();
-                var unoccupiedSeats = await GetUnoccupiedSeatsAsync(airlineFlight.Id, minimalPriceDepartmentId);
-                if(unoccupiedSeats < flightFilter.NumberOfPassengers)
+                var seatsAndUnoccupiedSeats = await GetSeatsAndUnoccupiedSeatsAsync(airlineFlight.Id, minimalPriceDepartmentId);
+                if(seatsAndUnoccupiedSeats.UnoccupiedSeats < flightFilter.NumberOfPassengers)
                     continue;
 
                 var nutshellFlight = new NutshellFight
@@ -121,8 +109,14 @@ namespace TisaBackend.BL.Services
             return nutshellFlights;
         }
 
-        public async Task AddNewFlightAsync(int airlineId, NewFlight newFlight)
+        public async Task AddNewFlightAsync(NewFlight newFlight, int airlineId, string username, bool isAdmin)
         {
+            var isAuthorizeForAirline = await _userService.IsAuthorizeForAirlineAsync(airlineId, username, isAdmin);
+            if (!isAuthorizeForAirline)
+            {
+                throw new ApplicationException("User is not authorize for current airline");
+            }
+
             var airline = await _airlineRepository.GetAirlineAsync(airlineId);
             var intersectingFlights = await _flightRepository
                 .GetIntersectingFlightsAsync(airlineId, newFlight.AirplaneTypeId,
@@ -166,8 +160,8 @@ namespace TisaBackend.BL.Services
         {
             var userId = await _userService.GetUserIdByUsername(username);
             order.UserId = userId;
-            var unoccupiedSeats = await GetUnoccupiedSeatsAsync(order.FlightId, order.DepartmentId);
-            if (unoccupiedSeats < order.SeatsQuantity)
+            var seatsAndUnoccupiedSeats = await GetSeatsAndUnoccupiedSeatsAsync(order.FlightId, order.DepartmentId);
+            if (seatsAndUnoccupiedSeats.UnoccupiedSeats < order.SeatsQuantity)
             {
                 throw new ApplicationException("Flight does not have enough seats at this department");
             }
@@ -175,7 +169,45 @@ namespace TisaBackend.BL.Services
             await _flightRepository.AddFlightOrderAsync(order);
         }
 
-        private async Task<int> GetUnoccupiedSeatsAsync(int flightId, int departmentId)
+        public async Task<IList<NutshellFight>> GetUserFlightsAsync(string username, bool isFuture)
+        {
+            var userId = await _userService.GetUserIdByUsername(username);
+            if (string.IsNullOrEmpty(userId))
+                return null;
+
+            var flights = await _flightRepository.GetFlightsByUserAsync(userId, isFuture);
+
+            var nutshellFlights = ParseFlights(flights);
+
+            return nutshellFlights;
+        }
+
+        private IList<NutshellFight> ParseFlights(IList<Flight> flights)
+        {
+            var nutshellFlights = new List<NutshellFight>();
+
+            foreach (var flight in flights)
+            {
+                var minimalPrice = flight.DepartmentPrices.Min(deptPrice => deptPrice.Price);
+                var nutshellFlight = new NutshellFight
+                {
+                    FlightId = flight.Id,
+                    MinimalPrice = minimalPrice,
+                    AirlineName = flight.Airplane.Airline.Name,
+                    AirplaneType = flight.Airplane.AirplaneType.Name,
+                    DepartureTime = flight.DepartureTime,
+                    ArrivalTime = flight.ArrivalTime,
+                    SrcAirport = flight.SrcAirport,
+                    DestAirport = flight.DestAirport
+                };
+
+                nutshellFlights.Add(nutshellFlight);
+            }
+
+            return nutshellFlights;
+        }
+
+        private async Task<(int Seats, int UnoccupiedSeats)> GetSeatsAndUnoccupiedSeatsAsync(int flightId, int departmentId)
         {
             var flight = await _flightRepository.GetFlightAsync(flightId);
             var airplaneTypeId = flight.Airplane.AirplaneTypeId;
@@ -183,7 +215,7 @@ namespace TisaBackend.BL.Services
 
             var flightOrders = await _flightRepository.GetDepartmentFlightOrdersAsync(flightId, departmentId);
 
-            return departmentSeats - flightOrders;
+            return (departmentSeats, departmentSeats - flightOrders);
         }
     }
 }

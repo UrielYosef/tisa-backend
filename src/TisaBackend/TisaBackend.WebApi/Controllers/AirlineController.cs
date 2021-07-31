@@ -31,7 +31,10 @@ namespace TisaBackend.WebApi.Controllers
         [Route("{airlineId}/Airplanes")]
         public async Task<IActionResult> GetAirlineAirplanesAsync([FromRoute] int airlineId)
         {
-            return Ok(await _airlineService.GetAirlineAirplanesAsync(airlineId));
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+            var airplanes = await _airlineService.GetAirlineAirplanesAsync(airlineId, User.Identity.Name, isAdmin);
+
+            return Ok(airplanes);
         }
 
         [HttpGet]
@@ -39,7 +42,10 @@ namespace TisaBackend.WebApi.Controllers
         [Route("{airlineId}/Agents")]
         public async Task<IActionResult> GetAirlineAgentsAsync([FromRoute] int airlineId)
         {
-            return Ok(await _airlineService.GetAirlineAgentsAsync(airlineId));
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+            var agents = await _airlineService.GetAirlineAgentsAsync(airlineId, User.Identity.Name, isAdmin);
+
+            return Ok(agents);
         }
 
         [HttpPut]
@@ -47,7 +53,8 @@ namespace TisaBackend.WebApi.Controllers
         [Route("{airlineId}/Airplanes")]
         public async Task<IActionResult> UpdateAirplanesAsync([FromBody] IList<AirplaneData> airplanesData, int airlineId)
         {
-            await _airlineService.UpdateAirplanesAsync(airlineId, airplanesData);
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+            await _airlineService.UpdateAirplanesAsync(airlineId, airplanesData, User.Identity.Name, isAdmin);
 
             return Ok();
         }
@@ -66,7 +73,8 @@ namespace TisaBackend.WebApi.Controllers
         [Route("Agent")]
         public async Task<IActionResult> AddAirlineAgentAsync([FromBody] NewAirlineAgentRequest newAirlineAgentRequest)
         {
-            var result = await _airlineService.TryAddAirlineAgentAsync(newAirlineAgentRequest);
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+            var result = await _airlineService.TryAddAirlineAgentAsync(newAirlineAgentRequest, User.Identity.Name, isAdmin);
             
             return Ok(result);
         }

@@ -23,7 +23,8 @@ namespace TisaBackend.WebApi.Controllers
         [Route("Airline/{airlineId}")]
         public async Task<IActionResult> AddFlightAsync(int airlineId, [FromBody] NewFlight newFlight)
         {
-            await _flightService.AddNewFlightAsync(airlineId, newFlight);
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+            await _flightService.AddNewFlightAsync(newFlight, airlineId, User.Identity.Name, isAdmin);
 
             return Ok();
         }
@@ -33,7 +34,8 @@ namespace TisaBackend.WebApi.Controllers
         [Route("Airline/{airlineId}")]
         public async Task<IActionResult> GetFlightsAsync(int airlineId)
         {
-            var airlineFlights = await _flightService.GetFlightsInANutshellAsync(airlineId);
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+            var airlineFlights = await _flightService.GetFlightsInANutshellAsync(airlineId, User.Identity.Name, isAdmin);
 
             return Ok(airlineFlights);
         }
@@ -63,6 +65,26 @@ namespace TisaBackend.WebApi.Controllers
             await _flightService.AddFlightOrderAsync(order, User.Identity.Name);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AllRoles)]
+        [Route("User/Future")]
+        public async Task<IActionResult> GetUserIncomingFlightsAsync()
+        {
+            var flights = await _flightService.GetUserFlightsAsync(User.Identity.Name, true);
+
+            return Ok(flights);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AllRoles)]
+        [Route("User/History")]
+        public async Task<IActionResult> GetUserHistoryFlightsAsync()
+        {
+            var flights = await _flightService.GetUserFlightsAsync(User.Identity.Name, false);
+
+            return Ok(flights);
         }
     }
 }

@@ -27,7 +27,6 @@ namespace TisaBackend.WebApi.Controllers
             return StatusCode(signInResult.StatusCode, signInResult.SignInDetails);
         }
 
-        //TODO: how to check if airline manager is the manager of the current airline request?
         [HttpPost]
         [Route("SignUp")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel signUpModel)

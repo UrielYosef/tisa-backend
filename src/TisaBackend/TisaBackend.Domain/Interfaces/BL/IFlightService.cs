@@ -7,9 +7,10 @@ namespace TisaBackend.Domain.Interfaces.BL
     public interface IFlightService
     {
         Task<FullyDetailedFight> GetFullyDetailedFlightAsync(int flightId);
-        Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId);
+        Task<IList<NutshellFight>> GetFlightsInANutshellAsync(int airlineId, string username, bool isAdmin);
         Task<IList<NutshellFight>> FilterFlightsAsync(FlightFilter flightFilter);
-        Task AddNewFlightAsync(int airlineId, NewFlight newFlight);
+        Task AddNewFlightAsync(NewFlight newFlight, int airlineId, string username, bool isAdmin);
         Task AddFlightOrderAsync(FlightOrder order, string username);
+        Task<IList<NutshellFight>> GetUserFlightsAsync(string username, bool isFuture);
     }
 }
