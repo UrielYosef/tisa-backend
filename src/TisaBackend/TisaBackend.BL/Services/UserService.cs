@@ -310,6 +310,21 @@ namespace TisaBackend.BL.Services
             return !string.IsNullOrEmpty(userEmail) && airlineEmails.Contains(userEmail);
         }
 
+        public async Task<bool> IsAirlineManager(int airlineId, string username, bool isAdmin)
+        {
+            if (isAdmin)
+                return true;
+
+            var user = await FindUserByUsernameAsync(username);
+            if (user is null)
+                return false;
+
+            var userEmail = user.Email;
+            var airline = await GetAirlineAsync(user.Id);
+
+            return airline.Id.Equals(airlineId) && userEmail.Equals(airline.AirlineManagerEmail);
+        }
+
         private async Task<Airline> GetAirlineAsync(string userId)
         {
             using var scope = _serviceScopeFactory.CreateScope();

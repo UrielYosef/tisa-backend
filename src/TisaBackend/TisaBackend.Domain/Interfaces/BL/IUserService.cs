@@ -17,5 +17,6 @@ namespace TisaBackend.Domain.Interfaces.BL
         Task<bool> TryAddUserToAirlineAsync(string userId, int airlineId);
         Task<IList<string>> GetUsersEmails(int airlineId);
         Task<bool> IsAuthorizeForAirlineAsync(int airlineId, string username, bool isAdmin);
+        Task<bool> IsAirlineManager(int airlineId, string username, bool isAdmin);
     }
 }
