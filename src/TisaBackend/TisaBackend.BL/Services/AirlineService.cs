@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using TisaBackend.Domain;
@@ -34,8 +35,14 @@ namespace TisaBackend.BL.Services
             return airlines;
         }
 
-        public async Task<IList<string>> GetAirlineAgentsAsync(int airlineId)
+        public async Task<IList<string>> GetAirlineAgentsAsync(int airlineId, string username, bool isAdmin)
         {
+            var isAuthorizeForAirline = await _userService.IsAirlineManager(airlineId, username, isAdmin);
+            if (!isAuthorizeForAirline)
+            {
+                throw new ApplicationException("User is not authorize for current airline");
+            }
+
             return await _userService.GetUsersEmails(airlineId);
         }
 
@@ -56,8 +63,14 @@ namespace TisaBackend.BL.Services
             return isSuccess;
         }
 
-        public async Task<bool> TryAddAirlineAgentAsync(NewAirlineAgentRequest newAirlineAgentRequest)
+        public async Task<bool> TryAddAirlineAgentAsync(NewAirlineAgentRequest newAirlineAgentRequest, string username, bool isAdmin)
         {
+            var isAuthorizeForAirline = await _userService.IsAirlineManager(newAirlineAgentRequest.AirlineId, username, isAdmin);
+            if (!isAuthorizeForAirline)
+            {
+                throw new ApplicationException("User is not authorize for current airline");
+            }
+
             var user = await _userService.FindUserByEmailAsync(newAirlineAgentRequest.Email)
                        ?? await _userService.CreateNewUserAsync(newAirlineAgentRequest.Email, UserRoles.AirlineAgent);
             await _userService.AddRoleToUserAsync(newAirlineAgentRequest.Email, UserRoles.AirlineAgent);
@@ -67,8 +80,14 @@ namespace TisaBackend.BL.Services
             return isSuccess;
         }
 
-        public async Task<IList<AirplaneData>> GetAirlineAirplanesAsync(int airlineId)
+        public async Task<IList<AirplaneData>> GetAirlineAirplanesAsync(int airlineId, string username, bool isAdmin)
         {
+            var isAuthorizeForAirline = await _userService.IsAuthorizeForAirlineAsync(airlineId, username, isAdmin);
+            if (!isAuthorizeForAirline)
+            {
+                throw new ApplicationException("User is not authorize for current airline");
+            }
+
             var airline = await _airlineRepository.GetAirlineAsync(airlineId);
             if (airline is null)
                 return null;
@@ -98,9 +117,9 @@ namespace TisaBackend.BL.Services
             return airplanesData;
         }
 
-        public async Task UpdateAirplanesAsync(int airlineId, IList<AirplaneData> airplanesData)
+        public async Task UpdateAirplanesAsync(int airlineId, IList<AirplaneData> airplanesData, string username, bool isAdmin)
         {
-            var currentAirplanes = await GetAirlineAirplanesAsync(airlineId);
+            var currentAirplanes = await GetAirlineAirplanesAsync(airlineId, username, isAdmin);
 
             foreach (var airplaneData in airplanesData)
             {

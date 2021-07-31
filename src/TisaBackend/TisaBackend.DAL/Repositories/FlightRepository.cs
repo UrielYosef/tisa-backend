@@ -35,7 +35,7 @@ namespace TisaBackend.DAL.Repositories
             return matchingFlight;
         }
 
-        public async Task<IList<Flight>> GetFlightsAsync(int airlineId)
+        public async Task<IList<Flight>> GetFlightsByAirlineAsync(int airlineId)
         {
             using var scope = ServiceScopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
@@ -53,6 +53,35 @@ namespace TisaBackend.DAL.Repositories
                 .ToListAsync();
 
             return matchingFlightsByAirline;
+        }
+
+        public async Task<IList<Flight>> GetFlightsByUserAsync(string userId, bool isFuture)
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            var flightIds = await context.FlightOrders
+                .Include(flightOrder => flightOrder.Flight)
+                .Where(flightOrder => flightOrder.UserId.Equals(userId) &&
+                                      ((isFuture && flightOrder.Flight.DepartureTime > DateTime.Now) ||
+                                      (!isFuture && flightOrder.Flight.DepartureTime < DateTime.Now)))
+                .Select(flightOrder => flightOrder.FlightId)
+                .Distinct()
+                .ToListAsync();
+
+            var matchingFlightsByIds = await context.Flights
+                .Include(flight => flight.Airplane)
+                    .ThenInclude(airplane => airplane.AirplaneType)
+                .Include(flight => flight.Airplane)
+                    .ThenInclude(airplane => airplane.Airline)
+                .Include(flight => flight.DepartmentPrices)
+                    .ThenInclude(departmentPrice => departmentPrice.Department)
+                .Include(flight => flight.SrcAirport)
+                .Include(flight => flight.DestAirport)
+                .Where(flight => flightIds.Contains(flight.Id))
+                .ToListAsync();
+
+            return matchingFlightsByIds;
         }
 
         public async Task<IList<Flight>> GetFlightsAsync(FlightFilter flightFilter)
