@@ -42,13 +42,13 @@ namespace TisaBackend.BL.Services
                 ArrivalTime = dalFlight.ArrivalTime,
                 SrcAirport = dalFlight.SrcAirport,
                 DestAirport = dalFlight.DestAirport,
-                DepartmentPrices = new List<DepartmentData>(),
+                DepartmentsData = new List<DepartmentData>(),
             };
 
             foreach (var departmentPrice in dalFlight.DepartmentPrices)
             {
                 var seatsAndUnoccupiedSeats = await GetSeatsAndUnoccupiedSeatsAsync(flightId, departmentPrice.DepartmentId);
-                fullyDetailedFlight.DepartmentPrices.Add(new DepartmentData
+                fullyDetailedFlight.DepartmentsData.Add(new DepartmentData
                 {
                     DepartmentId = departmentPrice.DepartmentId,
                     DisplayName = departmentPrice.Department.Name,
