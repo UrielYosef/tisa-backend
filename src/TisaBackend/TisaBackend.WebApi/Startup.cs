@@ -51,12 +51,14 @@ namespace TisaBackend.WebApi
             services.AddSingleton<IAirlineRepository, AirlineRepository>();
             services.AddSingleton<IFlightRepository, FlightRepository>();
             services.AddSingleton<IAirplaneTypeRepository, AirplaneTypeRepository>();
+            services.AddSingleton<IReviewRepository, ReviewRepository>();
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IAirportService, AirportService>();
             services.AddSingleton<IAirplaneTypeService, AirplaneTypeService>();
             services.AddSingleton<IAirlineService, AirlineService>();
             services.AddSingleton<IFlightService, FlightService>();
+            services.AddSingleton<IReviewService, ReviewService>();
 
             ConfigureDal(services);
             

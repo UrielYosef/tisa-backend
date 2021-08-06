@@ -197,6 +197,14 @@ namespace TisaBackend.BL.Services
             return await userManager.FindByNameAsync(username);
         }
 
+        public async Task<User> FindUserByUserIdAsync(string userId)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+            return await userManager.FindByIdAsync(userId);
+        }
+
         public async Task<string> GetUserIdByUsername(string username)
         {
             if (string.IsNullOrEmpty(username))
@@ -239,6 +247,7 @@ namespace TisaBackend.BL.Services
             }
 
             user.UserName = userName;
+            //TODO: send email to this address with login details (username, password)
             var password = GenerateNewPassword();
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
