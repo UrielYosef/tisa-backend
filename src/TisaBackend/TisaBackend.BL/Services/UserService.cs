@@ -247,7 +247,7 @@ namespace TisaBackend.BL.Services
             }
 
             user.UserName = userName;
-            //TODO: send email to this address with login details (username, password)
+            //TODO: Make password by username (not generate) or get password from client
             var password = GenerateNewPassword();
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)

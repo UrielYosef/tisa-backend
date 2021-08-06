@@ -139,7 +139,7 @@ namespace TisaBackend.BL.Services
                     }
                     else
                     {
-                        //TODO: implement - if we delete, we need to get also zero planes data
+                        //TODO: Implement - if we delete, we need to get also zero planes data
                         continue;
                     }
                 }

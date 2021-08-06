@@ -1,6 +1,6 @@
 ﻿namespace TisaBackend.Domain.Models
 {
-    //TODO: add discount to users when they purchase tickets
+    //TODO: Add discount to users when they purchase tickets
     public class FlightOrder
     {
         public int Id { get; set; }

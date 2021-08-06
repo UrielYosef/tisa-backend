@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using TisaBackend.DAL.Migrations;
+using System.Collections.Generic;
 using TisaBackend.Domain.Models;
 using TisaBackend.Domain.Interfaces.BL;
 
@@ -16,6 +15,22 @@ namespace TisaBackend.BL.Services
         {
             _airlineService = airlineService;
             _flightService = flightService;
+        }
+
+        public async Task<IList<AirlineReportData>> GetAirlinesReportsDataAsync(string username, bool isAdmin)
+        {
+            var airlines = (await _airlineService.GetAllAirlinesAsync())?.ToList();
+            if (!airlines?.Any() ?? true)
+                return null;
+
+            var reports = new List<AirlineReportData>();
+            foreach (var airline in airlines)
+            {
+                var report = await GetAirlineReportDataAsync(airline.Id, username, isAdmin);
+                reports.Add(report);
+            }
+
+            return reports;
         }
 
         public async Task<AirlineReportData> GetAirlineReportDataAsync(int airlineId, string username, bool isAdmin)
