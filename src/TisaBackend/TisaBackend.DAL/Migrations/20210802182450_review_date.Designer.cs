@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TisaBackend.DAL;
@@ -9,9 +10,10 @@ using TisaBackend.DAL;
 namespace TisaBackend.DAL.Migrations
 {
     [DbContext(typeof(TisaContext))]
-    partial class TisaContextModelSnapshot : ModelSnapshot
+    [Migration("20210802182450_review_date")]
+    partial class review_date
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

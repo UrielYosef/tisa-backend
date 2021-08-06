@@ -27,6 +27,7 @@ namespace TisaBackend.DAL
         public virtual DbSet<Flight> Flights { get; set; }
         public virtual DbSet<DalDepartmentPrice> DepartmentPrices { get; set; }
         public virtual DbSet<FlightOrder> FlightOrders { get; set; }
+        public virtual DbSet<DalReview> Reviews { get; set; }
 
         #endregion
 
@@ -40,10 +41,8 @@ namespace TisaBackend.DAL
             builder.Entity<DalDepartmentPrice>()
                 .ToTable("DepartmentPrices");
 
-            /*builder.Entity<FlightPrice>().HasKey(flightPrice => new {
-                flightPrice.FlightId,
-                flightPrice.DepartmentType
-            });*/
+            builder.Entity<DalReview>()
+                .ToTable("Reviews");
         }
     }
 }
