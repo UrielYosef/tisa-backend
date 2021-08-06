@@ -20,10 +20,13 @@ namespace TisaBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = UserRoles.Admin)]
         [Route("All")]
         public async Task<IActionResult> GetAllAirlinesAsync()
         {
-            return Ok(await _airlineService.GetAllAirlinesAsync());
+            var airlines = await _airlineService.GetAllAirlinesAsync();
+
+            return Ok(airlines);
         }
         
         [HttpGet]
