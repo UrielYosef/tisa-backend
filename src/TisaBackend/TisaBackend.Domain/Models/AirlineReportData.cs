@@ -11,11 +11,4 @@ namespace TisaBackend.Domain.Models
         public double? AverageOccupancyPercentage => FlightsData?.Average(data => data.OccupancyPercentage);
         public int? TotalOfIncome => FlightsData?.Sum(data => data.TotalOfIncome);
     }
-
-    public class FlightReportData
-    {
-        public int FlightId { get; set; }
-        public int TotalOfIncome { get; set; }
-        public double OccupancyPercentage { get; set; }
-    }
 }

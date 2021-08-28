@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
@@ -18,7 +19,7 @@ namespace TisaBackend.BL.Services
             _reviewRepository = reviewRepository;
         }
 
-        public async Task<IList<Review>> GetAirlineReviewsAsync(int airlineId)
+        public async Task<AirlineReviewData> GetAirlineReviewsAsync(int airlineId)
         {
             var reviews = new List<Review>();
             var dalReviews = await _reviewRepository.GetAirlineReviews(airlineId);
@@ -29,7 +30,12 @@ namespace TisaBackend.BL.Services
                 reviews.Add(review);
             }
 
-            return reviews;
+            return new AirlineReviewData
+            {
+                AirlineId = airlineId,
+                AirlineName = dalReviews.FirstOrDefault()?.Airline.Name,
+                Reviews = reviews
+            };
         }
 
         public async Task AddReviewAsync(Review review)
