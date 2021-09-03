@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;

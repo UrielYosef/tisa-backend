@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using TisaBackend.Domain.Models;
@@ -75,9 +76,7 @@ namespace TisaBackend.BL.Services
                 var flightData = new FlightReportData
                 {
                     FlightId = flight.FlightId,
-                    OccupancyPercentage = flight.DepartmentsData
-                        .Select(departmentData => (double) (departmentData.Seats - departmentData.AvailableSeats) / departmentData.Seats)
-                        .Average(),
+                    OccupancyPercentage = CalculateAverageOccupancyPercentage(flight),
                     TotalOfIncome = flight.DepartmentsData
                         .Select(departmentData => (departmentData.Seats - departmentData.AvailableSeats) * departmentData.Price)
                         .Sum()
@@ -87,6 +86,13 @@ namespace TisaBackend.BL.Services
             }
 
             return flightsData;
+        }
+
+        private int CalculateAverageOccupancyPercentage(FullyDetailedFight flight)
+        {
+            return (int)(Math.Round(flight.DepartmentsData
+                              .Select(departmentData => (double)(departmentData.Seats - departmentData.AvailableSeats) / departmentData.Seats)
+                              .Average(), 2) * 100);
         }
     }
 }

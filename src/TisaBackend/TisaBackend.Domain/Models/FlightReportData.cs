@@ -4,6 +4,6 @@
     {
         public int FlightId { get; set; }
         public int TotalOfIncome { get; set; }
-        public double OccupancyPercentage { get; set; }
+        public int OccupancyPercentage { get; set; }
     }
 }
