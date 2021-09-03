@@ -36,6 +36,7 @@ namespace TisaBackend.BL.Services
             var fullyDetailedFlight = new FullyDetailedFight
             {
                 FlightId = flightId,
+                AirlineId = dalFlight.Airplane.AirlineId,
                 AirlineName = dalFlight.Airplane.Airline.Name,
                 AirplaneType = dalFlight.Airplane.AirplaneType.Name,
                 DepartureTime = dalFlight.DepartureTime,
@@ -185,6 +186,7 @@ namespace TisaBackend.BL.Services
                 {
                     FlightId = flight.Id,
                     MinimalPrice = minimalPrice,
+                    AirlineId = flight.Airplane.AirlineId,
                     AirlineName = flight.Airplane.Airline.Name,
                     AirplaneType = flight.Airplane.AirplaneType.Name,
                     DepartureTime = flight.DepartureTime,
