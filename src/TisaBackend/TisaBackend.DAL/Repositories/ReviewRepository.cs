@@ -21,6 +21,7 @@ namespace TisaBackend.DAL.Repositories
             var context = scope.ServiceProvider.GetRequiredService<TisaContext>();
 
             return await context.Reviews
+                .Include(review => review.Airline)
                 .Where(review => review.AirlineId.Equals(airlineId))
                 .ToListAsync();
         }

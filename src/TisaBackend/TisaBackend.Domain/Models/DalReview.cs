@@ -13,5 +13,7 @@ namespace TisaBackend.Domain.Models
         [Range(1,5)]
         public int Ranking { get; set; }
         public DateTime ReviewDate { get; set; }
+
+        public Airline Airline { get; set; }
     }
 }

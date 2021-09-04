@@ -133,14 +133,9 @@ namespace TisaBackend.BL.Services
                 {
                     if (airplaneData.Count == existsAirplaneData.Count)
                         continue;
-                    else if (airplaneData.Count > existsAirplaneData.Count)
+                    if (airplaneData.Count > existsAirplaneData.Count)
                     {
                         await AddAirplanesAsync(airplaneData.Count - existsAirplaneData.Count, airlineId, airplaneData.Id);
-                    }
-                    else
-                    {
-                        //TODO: Implement - if we delete then we need to get also zero planes data
-                        continue;
                     }
                 }
             }

@@ -19,6 +19,7 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.Admin)]
+        [Route("Admin")]
         public async Task<IActionResult> GetReportAsync()
         {
             var isAdmin = User.IsInRole(UserRoles.Admin);

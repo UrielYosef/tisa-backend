@@ -35,6 +35,10 @@ namespace TisaBackend.DAL
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Airline>()
+                .HasIndex(u => u.Name)
+                .IsUnique();
+
             builder.Entity<UserToAirline>()
                 .ToTable("UserToAirline");
 

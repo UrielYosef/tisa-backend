@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using TisaBackend.Domain.Models;
@@ -19,14 +20,18 @@ namespace TisaBackend.BL.Services
 
         public async Task<IList<AirlineReportData>> GetAirlinesReportsDataAsync(string username, bool isAdmin)
         {
+            var reports = new List<AirlineReportData>();
+
             var airlines = (await _airlineService.GetAllAirlinesAsync())?.ToList();
             if (!airlines?.Any() ?? true)
-                return null;
+                return reports;
 
-            var reports = new List<AirlineReportData>();
             foreach (var airline in airlines)
             {
                 var report = await GetAirlineReportDataAsync(airline.Id, username, isAdmin);
+                if(report.AirlineId == 0)
+                    continue;
+                
                 reports.Add(report);
             }
 
@@ -37,7 +42,7 @@ namespace TisaBackend.BL.Services
         {
             var nutshellFights = await _flightService.GetFlightsInANutshellAsync(airlineId, username, isAdmin);
             if (!nutshellFights?.Any() ?? true)
-                return null;
+                return new AirlineReportData();
 
             var airlineName = nutshellFights.First().AirlineName;
             var flights = await GetFullyFlightsDetailsAsync(nutshellFights.Select(flight => flight.FlightId));
@@ -75,18 +80,31 @@ namespace TisaBackend.BL.Services
                 var flightData = new FlightReportData
                 {
                     FlightId = flight.FlightId,
-                    OccupancyPercentage = flight.DepartmentsData
-                        .Select(departmentData => (double) (departmentData.Seats - departmentData.AvailableSeats) / departmentData.Seats)
-                        .Average(),
-                    TotalOfIncome = flight.DepartmentsData
-                        .Select(departmentData => (departmentData.Seats - departmentData.AvailableSeats) * departmentData.Price)
-                        .Sum()
+                    From = $"{flight.SrcAirport.Country}, {flight.SrcAirport.City}",
+                    To = $"{flight.DestAirport.Country}, {flight.DestAirport.City}",
+                    DepartureDate = flight.DepartureTime.ToString("dd/MM/yyyy"),
+                    OccupancyPercentage = CalculateAverageOccupancyPercentage(flight),
+                    TotalOfIncome = CalculateTotalOfIncome(flight)
                 };
 
                 flightsData.Add(flightData);
             }
 
             return flightsData;
+        }
+
+        private int CalculateAverageOccupancyPercentage(FullyDetailedFight flight)
+        {
+            return (int)(Math.Round(flight.DepartmentsData
+                              .Select(departmentData => (double)(departmentData.Seats - departmentData.AvailableSeats) / departmentData.Seats)
+                              .Average(), 2) * 100);
+        }
+
+        private int CalculateTotalOfIncome(FullyDetailedFight flight)
+        {
+            return flight.DepartmentsData
+                .Select(departmentData => (departmentData.Seats - departmentData.AvailableSeats) * departmentData.Price)
+                .Sum();
         }
     }
 }

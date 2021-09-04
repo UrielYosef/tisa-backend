@@ -24,14 +24,10 @@ namespace TisaBackend.BL.Services
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        private readonly Random _random;
         private readonly string _jwtSecret;
         private readonly string _jwtValidIssuer;
         private readonly string _jwtValidAudience;
         private readonly int _jwtExpirationInHours;
-        private readonly string _lowerCaseCharacters;
-        private readonly string _upperCaseCharacters;
-        private readonly string _digitsCharacters;
         private readonly int _userCreationByEmailAttempts;
 
         public UserService(IConfiguration config, IServiceScopeFactory serviceScopeFactory)
@@ -45,14 +41,6 @@ namespace TisaBackend.BL.Services
 
             _userCreationByEmailAttempts = config
                 .GetSection("UserService").GetSection("userCreationByEmailAttempts").Get<int>();
-            _lowerCaseCharacters = config
-                .GetSection("UserService").GetSection("lowerCaseCharacters").Get<string>();
-            _upperCaseCharacters = config
-                .GetSection("UserService").GetSection("upperCaseCharacters").Get<string>();
-            _digitsCharacters = config
-                .GetSection("UserService").GetSection("digitsCharacters").Get<string>();
-
-            _random = new Random();
         }
 
         public async Task<SignUpResult> RegisterAdminAsync(SignUpModel signUpModel)
@@ -230,25 +218,24 @@ namespace TisaBackend.BL.Services
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            var userName = user.Email.Substring(0, user.Email.IndexOf('@'));
-            if (await userManager.FindByNameAsync(userName) != null)
+            var username = user.Email.Substring(0, user.Email.IndexOf('@'));
+            if (await userManager.FindByNameAsync(username) != null)
             {
                 int attempts = 1;
                 while (attempts <= _userCreationByEmailAttempts)
                 {
-                    var userExists = await userManager.FindByNameAsync(userName + attempts);
+                    var userExists = await userManager.FindByNameAsync(username + attempts);
                     if (userExists is null)
                     {
-                        userName = userName + attempts;
+                        username += attempts;
                         break;
                     }
                     attempts++;
                 }
             }
 
-            user.UserName = userName;
-            //TODO: Make password by username (not generate) or get password from client
-            var password = GenerateNewPassword();
+            user.UserName = username;
+            var password = "XYZxyz123"; //Just for Development
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
                 return null;
@@ -344,27 +331,6 @@ namespace TisaBackend.BL.Services
                 .Where(userToAirline => userToAirline.UserId.Equals(userId))
                 .Select(userToAirline => userToAirline.Airline)
                 .SingleOrDefaultAsync();
-        }
-
-        private string GenerateNewPassword()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(_lowerCaseCharacters[_random.Next(0, _lowerCaseCharacters.Length)]);
-            builder.Append(_lowerCaseCharacters[_random.Next(0, _lowerCaseCharacters.Length)]);
-            builder.Append(_lowerCaseCharacters[_random.Next(0, _lowerCaseCharacters.Length)]);
-
-            builder.Append(_upperCaseCharacters[_random.Next(0, _upperCaseCharacters.Length)]);
-            builder.Append(_upperCaseCharacters[_random.Next(0, _upperCaseCharacters.Length)]);
-            builder.Append(_upperCaseCharacters[_random.Next(0, _upperCaseCharacters.Length)]);
-
-            builder.Append(_digitsCharacters[_random.Next(0, _digitsCharacters.Length)]);
-            builder.Append(_digitsCharacters[_random.Next(0, _digitsCharacters.Length)]);
-            builder.Append(_digitsCharacters[_random.Next(0, _digitsCharacters.Length)]);
-
-            var password = builder.ToString();
-            var shuffledPassword = new string(password.ToCharArray().OrderBy(ch => Guid.NewGuid()).ToArray());
-
-            return shuffledPassword;
         }
     }
 }
