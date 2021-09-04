@@ -81,7 +81,7 @@ namespace TisaBackend.BL.Services
                     FlightId = flight.FlightId,
                     From = $"{flight.SrcAirport.Country}, {flight.SrcAirport.City}",
                     To = $"{flight.DestAirport.Country}, {flight.DestAirport.City}",
-                    DepartureDate = flight.DepartureTime.Date,//TODO: check ToString("dd/MM/yyyy")
+                    DepartureDate = flight.DepartureTime.ToString("dd/MM/yyyy"),
                     OccupancyPercentage = CalculateAverageOccupancyPercentage(flight),
                     TotalOfIncome = CalculateTotalOfIncome(flight)
                 };
