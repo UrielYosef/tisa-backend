@@ -235,7 +235,7 @@ namespace TisaBackend.BL.Services
             }
 
             user.UserName = username;
-            var password = username;
+            var password = "XYZxyz123"; //Just for Development
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
                 return null;

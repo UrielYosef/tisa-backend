@@ -28,6 +28,9 @@ namespace TisaBackend.BL.Services
             foreach (var airline in airlines)
             {
                 var report = await GetAirlineReportDataAsync(airline.Id, username, isAdmin);
+                if(report is null)
+                    continue;
+                
                 reports.Add(report);
             }
 
@@ -76,10 +79,11 @@ namespace TisaBackend.BL.Services
                 var flightData = new FlightReportData
                 {
                     FlightId = flight.FlightId,
+                    From = $"{flight.SrcAirport.Country}, {flight.SrcAirport.City}",
+                    To = $"{flight.DestAirport.Country}, {flight.DestAirport.City}",
+                    DepartureDate = flight.DepartureTime.Date,//TODO: check ToString("dd/MM/yyyy")
                     OccupancyPercentage = CalculateAverageOccupancyPercentage(flight),
-                    TotalOfIncome = flight.DepartmentsData
-                        .Select(departmentData => (departmentData.Seats - departmentData.AvailableSeats) * departmentData.Price)
-                        .Sum()
+                    TotalOfIncome = CalculateTotalOfIncome(flight)
                 };
 
                 flightsData.Add(flightData);
@@ -93,6 +97,13 @@ namespace TisaBackend.BL.Services
             return (int)(Math.Round(flight.DepartmentsData
                               .Select(departmentData => (double)(departmentData.Seats - departmentData.AvailableSeats) / departmentData.Seats)
                               .Average(), 2) * 100);
+        }
+
+        private int CalculateTotalOfIncome(FullyDetailedFight flight)
+        {
+            return flight.DepartmentsData
+                .Select(departmentData => (departmentData.Seats - departmentData.AvailableSeats) * departmentData.Price)
+                .Sum();
         }
     }
 }

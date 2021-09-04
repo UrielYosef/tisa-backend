@@ -17,7 +17,7 @@ namespace TisaBackend.Domain.Models
             if (!FlightsData?.Any() ?? true)
                 return null;
 
-            return (int?)Math.Round((decimal)FlightsData.Average(data => data.OccupancyPercentage), 0);
+            return (int)Math.Round((decimal)FlightsData.Average(data => data.OccupancyPercentage), 0);
         }
     }
 }
