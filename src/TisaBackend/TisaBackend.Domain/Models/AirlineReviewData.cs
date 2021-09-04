@@ -9,12 +9,12 @@ namespace TisaBackend.Domain.Models
         public int AirlineId { get; set; }
         public string AirlineName { get; set; }
         public IList<Review> Reviews { get; set; }
-        public decimal? Ranking => CalculateAverageRanking();
+        public decimal Ranking => CalculateAverageRanking();
 
-        private decimal? CalculateAverageRanking()
+        private decimal CalculateAverageRanking()
         {
             if (!Reviews?.Any() ?? true)
-                return null;
+                return 0;
 
             return Math.Round((decimal)Reviews.Average(data => data?.Ranking), 1);
         }
