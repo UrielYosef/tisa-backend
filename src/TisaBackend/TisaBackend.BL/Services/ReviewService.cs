@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
+using System.Linq;
 using TisaBackend.Domain.Interfaces.BL;
 using TisaBackend.Domain.Interfaces.DAL;
 using TisaBackend.Domain.Models;
@@ -11,17 +11,31 @@ namespace TisaBackend.BL.Services
     {
         private readonly IUserService _userService;
         private readonly IReviewRepository _reviewRepository;
+        private readonly IAirlineRepository _airlineRepository;
 
-        public ReviewService(IUserService userService, IReviewRepository reviewRepository)
+        public ReviewService(IUserService userService, IReviewRepository reviewRepository, IAirlineRepository airlineRepository)
         {
             _userService = userService;
             _reviewRepository = reviewRepository;
+            _airlineRepository = airlineRepository;
         }
 
-        public async Task<IList<Review>> GetAirlineReviewsAsync(int airlineId)
+        public async Task<AirlineReviewData> GetAirlineReviewsAsync(int airlineId)
         {
             var reviews = new List<Review>();
             var dalReviews = await _reviewRepository.GetAirlineReviews(airlineId);
+            if (!dalReviews.Any())
+            {
+                var airline = await _airlineRepository.GetAirlineAsync(airlineId);
+
+                return new AirlineReviewData
+                {
+                    AirlineId = airlineId,
+                    AirlineName = airline.Name,
+                    Reviews = new List<Review>()
+                };
+            }
+
             foreach (var dalReview in dalReviews)
             {
                 var review = await ParseDalReviewAsync(dalReview);
@@ -29,7 +43,12 @@ namespace TisaBackend.BL.Services
                 reviews.Add(review);
             }
 
-            return reviews;
+            return new AirlineReviewData
+            {
+                AirlineId = airlineId,
+                AirlineName = dalReviews.FirstOrDefault()?.Airline.Name,
+                Reviews = reviews
+            };
         }
 
         public async Task AddReviewAsync(Review review)
