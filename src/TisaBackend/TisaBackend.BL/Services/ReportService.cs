@@ -20,11 +20,12 @@ namespace TisaBackend.BL.Services
 
         public async Task<IList<AirlineReportData>> GetAirlinesReportsDataAsync(string username, bool isAdmin)
         {
+            var reports = new List<AirlineReportData>();
+
             var airlines = (await _airlineService.GetAllAirlinesAsync())?.ToList();
             if (!airlines?.Any() ?? true)
-                return null;
+                return reports;
 
-            var reports = new List<AirlineReportData>();
             foreach (var airline in airlines)
             {
                 var report = await GetAirlineReportDataAsync(airline.Id, username, isAdmin);
