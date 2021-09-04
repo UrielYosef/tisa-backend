@@ -12,5 +12,6 @@ namespace TisaBackend.Domain.Interfaces.BL
         Task AddNewFlightAsync(NewFlight newFlight, int airlineId, string username, bool isAdmin);
         Task AddFlightOrderAsync(FlightOrder order, string username);
         Task<IList<NutshellFight>> GetUserFlightsAsync(string username, bool isFuture);
+        Task<IList<FlightOrder>> GetFlightsOrdersAsync(int airlineId, string username, bool isAdmin);
     }
 }

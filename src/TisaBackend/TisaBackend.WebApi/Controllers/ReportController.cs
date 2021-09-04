@@ -19,14 +19,24 @@ namespace TisaBackend.WebApi.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.Admin)]
-        [Route("Admin")]
-        public async Task<IActionResult> GetReportAsync()
+        [Route("Admin/Users")]
+        public async Task<IActionResult> GetUsersReportAsync()
+        {
+            var report = await _reportService.GetRegisteredUsersAsync();
+
+            return Ok(report);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.Admin)]
+        [Route("Admin/Airlines")]
+        public async Task<IActionResult> GetAirlinesReportAsync()
         {
             var isAdmin = User.IsInRole(UserRoles.Admin);
 
-            var reports = await _reportService.GetAirlinesReportsDataAsync(User.Identity.Name, isAdmin);
+            var report = await _reportService.GetAirlinesReportsDataAsync(User.Identity.Name, isAdmin);
 
-            return Ok(reports);
+            return Ok(report);
         }
 
         [HttpGet]
@@ -37,6 +47,18 @@ namespace TisaBackend.WebApi.Controllers
             var isAdmin = User.IsInRole(UserRoles.Admin);
 
             var report = await _reportService.GetAirlineReportDataAsync(airlineId, User.Identity.Name, isAdmin);
+
+            return Ok(report);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = UserRoles.AdminAndAirlineManager)]
+        [Route("Airline/Orders/{airlineId}")]
+        public async Task<IActionResult> GetOrdersReportAsync(int airlineId)
+        {
+            var isAdmin = User.IsInRole(UserRoles.Admin);
+
+            var report = await _reportService.GetAirlineOrdersReportDataAsync(airlineId, User.Identity.Name, isAdmin);
 
             return Ok(report);
         }

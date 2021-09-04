@@ -151,7 +151,7 @@ namespace TisaBackend.BL.Services
 
         public async Task AddFlightOrderAsync(FlightOrder order, string username)
         {
-            var userId = await _userService.GetUserIdByUsername(username);
+            var userId = await _userService.GetUserIdByUsernameAsync(username);
             order.UserId = userId;
             var seatsAndUnoccupiedSeats = await GetSeatsAndUnoccupiedSeatsAsync(order.FlightId, order.DepartmentId);
             if (seatsAndUnoccupiedSeats.UnoccupiedSeats < order.SeatsQuantity)
@@ -164,7 +164,7 @@ namespace TisaBackend.BL.Services
 
         public async Task<IList<NutshellFight>> GetUserFlightsAsync(string username, bool isFuture)
         {
-            var userId = await _userService.GetUserIdByUsername(username);
+            var userId = await _userService.GetUserIdByUsernameAsync(username);
             if (string.IsNullOrEmpty(userId))
                 return null;
 
@@ -173,6 +173,19 @@ namespace TisaBackend.BL.Services
             var nutshellFlights = ParseFlights(flights);
 
             return nutshellFlights;
+        }
+
+        public async Task<IList<FlightOrder>> GetFlightsOrdersAsync(int airlineId, string username, bool isAdmin)
+        {
+            var isAuthorizeForAirline = await _userService.IsAuthorizeForAirlineAsync(airlineId, username, isAdmin);
+            if (!isAuthorizeForAirline)
+            {
+                throw new ApplicationException("User is not authorize for current airline");
+            }
+
+            var orders = await _flightRepository.GetFlightsOrdersAsync(airlineId);
+
+            return orders;
         }
 
         private IList<NutshellFight> ParseFlights(IList<Flight> flights)
