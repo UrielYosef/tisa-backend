@@ -29,7 +29,7 @@ namespace TisaBackend.BL.Services
             foreach (var airline in airlines)
             {
                 var report = await GetAirlineReportDataAsync(airline.Id, username, isAdmin);
-                if(report is null)
+                if(report.AirlineId == 0)
                     continue;
                 
                 reports.Add(report);
