@@ -42,7 +42,7 @@ namespace TisaBackend.BL.Services
         {
             var nutshellFights = await _flightService.GetFlightsInANutshellAsync(airlineId, username, isAdmin);
             if (!nutshellFights?.Any() ?? true)
-                return null;
+                return new AirlineReportData();
 
             var airlineName = nutshellFights.First().AirlineName;
             var flights = await GetFullyFlightsDetailsAsync(nutshellFights.Select(flight => flight.FlightId));
