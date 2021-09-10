@@ -29,6 +29,7 @@ namespace TisaBackend.BL.Services
         private readonly string _jwtValidAudience;
         private readonly int _jwtExpirationInHours;
         private readonly int _userCreationByEmailAttempts;
+        private readonly string _defaultDevelopmentPassword;
 
         public UserService(IConfiguration config, IServiceScopeFactory serviceScopeFactory)
         {
@@ -41,6 +42,8 @@ namespace TisaBackend.BL.Services
 
             _userCreationByEmailAttempts = config
                 .GetSection("UserService").GetSection("userCreationByEmailAttempts").Get<int>();
+            _defaultDevelopmentPassword = config
+                .GetSection("UserService").GetSection("defaultDevelopmentPassword").Get<string>();
         }
 
         public async Task<SignUpResult> RegisterAdminAsync(SignUpModel signUpModel)
@@ -146,8 +149,8 @@ namespace TisaBackend.BL.Services
             var userExists = await userManager.FindByNameAsync(signUpModel.Username)
                              ?? await userManager.FindByEmailAsync(signUpModel.Email);
             if (userExists != null)
-                return new SignUpResult(StatusCodes.Status400BadRequest, 
-                    "Error",  "User already exists");
+                return new SignUpResult(StatusCodes.Status400BadRequest,
+                    "Error", "User already exists");
 
             var user = new User
             {
@@ -193,7 +196,7 @@ namespace TisaBackend.BL.Services
             return await userManager.FindByIdAsync(userId);
         }
 
-        public async Task<string> GetUserIdByUsername(string username)
+        public async Task<string> GetUserIdByUsernameAsync(string username)
         {
             if (string.IsNullOrEmpty(username))
                 return null;
@@ -235,7 +238,7 @@ namespace TisaBackend.BL.Services
             }
 
             user.UserName = username;
-            var password = "XYZxyz123"; //Just for Development
+            var password = _defaultDevelopmentPassword; //Just for Development purpose
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
                 return null;
@@ -280,7 +283,7 @@ namespace TisaBackend.BL.Services
             return true;
         }
 
-        public async Task<IList<string>> GetUsersEmails(int airlineId)
+        public async Task<IList<string>> GetUsersEmailsAsync(int airlineId)
         {
             using var scope = _serviceScopeFactory.CreateScope();
             var tisaContext = scope.ServiceProvider.GetRequiredService<TisaContext>();
@@ -301,12 +304,12 @@ namespace TisaBackend.BL.Services
 
             var user = await FindUserByUsernameAsync(username);
             var userEmail = user?.Email;
-            var airlineEmails = await GetUsersEmails(airlineId);
+            var airlineEmails = await GetUsersEmailsAsync(airlineId);
 
             return !string.IsNullOrEmpty(userEmail) && airlineEmails.Contains(userEmail);
         }
 
-        public async Task<bool> IsAirlineManager(int airlineId, string username, bool isAdmin)
+        public async Task<bool> IsAirlineManagerAsync(int airlineId, string username, bool isAdmin)
         {
             if (isAdmin)
                 return true;
@@ -319,6 +322,25 @@ namespace TisaBackend.BL.Services
             var airline = await GetAirlineAsync(user.Id);
 
             return airline.Id.Equals(airlineId) && userEmail.Equals(airline.AirlineManagerEmail);
+        }
+
+        public async Task<IList<(User user, string roles)>> GetRegisteredUsersAsync()
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var tisaContext = scope.ServiceProvider.GetRequiredService<TisaContext>();
+
+            var usersAndRoles = new List<(User user, string roles)>();
+
+            var users = await tisaContext.Users
+                .ToListAsync();
+            foreach (var user in users)
+            {
+                var userRoles = await userManager.GetRolesAsync(user);
+                usersAndRoles.Add((user, string.Join(',', userRoles)));
+            }
+
+            return usersAndRoles;
         }
 
         private async Task<Airline> GetAirlineAsync(string userId)

@@ -6,7 +6,9 @@ namespace TisaBackend.Domain.Interfaces.BL
 {
     public interface IReportService
     {
+        Task<IList<UserReportData>> GetRegisteredUsersAsync();
         Task<IList<AirlineReportData>> GetAirlinesReportsDataAsync(string username, bool isAdmin);
         Task<AirlineReportData> GetAirlineReportDataAsync(int airlineId, string username, bool isAdmin);
+        Task<AirlineOrdersReportData> GetAirlineOrdersReportDataAsync(int airlineId, string username, bool isAdmin);
     }
 }

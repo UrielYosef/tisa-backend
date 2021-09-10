@@ -12,12 +12,13 @@ namespace TisaBackend.Domain.Interfaces.BL
         Task<User> FindUserByEmailAsync(string email);
         Task<User> FindUserByUsernameAsync(string username);
         Task<User> FindUserByUserIdAsync(string userId);
-        Task<string> GetUserIdByUsername(string username);
+        Task<string> GetUserIdByUsernameAsync(string username);
         Task<User> CreateNewUserAsync(string email, string role);
         Task AddRoleToUserAsync(string userEmail, string role);
         Task<bool> TryAddUserToAirlineAsync(string userId, int airlineId);
-        Task<IList<string>> GetUsersEmails(int airlineId);
+        Task<IList<string>> GetUsersEmailsAsync(int airlineId);
         Task<bool> IsAuthorizeForAirlineAsync(int airlineId, string username, bool isAdmin);
-        Task<bool> IsAirlineManager(int airlineId, string username, bool isAdmin);
+        Task<bool> IsAirlineManagerAsync(int airlineId, string username, bool isAdmin);
+        Task<IList<(User user, string roles)>> GetRegisteredUsersAsync();
     }
 }
