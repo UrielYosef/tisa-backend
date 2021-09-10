@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TisaBackend.Domain.Models
+﻿namespace TisaBackend.Domain.Models
 {
     public class FlightReportData
     {
