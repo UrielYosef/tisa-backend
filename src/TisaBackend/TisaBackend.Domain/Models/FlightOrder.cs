@@ -1,6 +1,7 @@
-﻿namespace TisaBackend.Domain.Models
+﻿using TisaBackend.Domain.Models.Auth;
+
+namespace TisaBackend.Domain.Models
 {
-    //TODO: Add discount to users when they purchase tickets
     public class FlightOrder
     {
         public int Id { get; set; }
@@ -10,5 +11,6 @@
         public int SeatsQuantity { get; set; }
         
         public Flight Flight { get; set; }
+        public User User { get; set; }
     }
 }

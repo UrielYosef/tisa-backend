@@ -11,11 +11,30 @@ namespace TisaBackend.BL.Services
     {
         private readonly IAirlineService _airlineService;
         private readonly IFlightService _flightService;
+        private readonly IUserService _userService;
 
-        public ReportService(IAirlineService airlineService, IFlightService flightService)
+        public ReportService(IAirlineService airlineService, IFlightService flightService, IUserService userService)
         {
             _airlineService = airlineService;
             _flightService = flightService;
+            _userService = userService;
+        }
+
+        public async Task<IList<UserReportData>> GetRegisteredUsersAsync()
+        {
+            var usersData = new List<UserReportData>();
+            var usersAndRoles = await _userService.GetRegisteredUsersAsync();
+            foreach (var (user, roles) in usersAndRoles)
+            {
+                usersData.Add(new UserReportData
+                {
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Roles = roles
+                });
+            }
+
+            return usersData;
         }
 
         public async Task<IList<AirlineReportData>> GetAirlinesReportsDataAsync(string username, bool isAdmin)
@@ -58,6 +77,24 @@ namespace TisaBackend.BL.Services
             return report;
         }
 
+        public async Task<AirlineOrdersReportData> GetAirlineOrdersReportDataAsync(int airlineId, string username, bool isAdmin)
+        {
+            var airlineOrders = await _flightService.GetFlightsOrdersAsync(airlineId, username, isAdmin);
+            if (!airlineOrders?.Any() ?? true)
+                return new AirlineOrdersReportData();
+
+            var flightsOrdersData = CalculateFlightsOrdersData(airlineOrders);
+
+            var report = new AirlineOrdersReportData
+            {
+                AirlineId = airlineId,
+                AirlineName = airlineOrders.First().Flight.Airplane.Airline.Name,
+                FlightsOrdersData = flightsOrdersData
+            };
+
+            return report;
+        }
+
         private async Task<IList<FullyDetailedFight>> GetFullyFlightsDetailsAsync(IEnumerable<int> flightIds)
         {
             var flights = new List<FullyDetailedFight>();
@@ -91,6 +128,29 @@ namespace TisaBackend.BL.Services
             }
 
             return flightsData;
+        }
+
+        private IList<FlightOrderReportData> CalculateFlightsOrdersData(IList<FlightOrder> flightOrders)
+        {
+            var flightsOrdersData = new List<FlightOrderReportData>();
+
+            foreach (var flightOrder in flightOrders)
+            {
+                var flightData = new FlightOrderReportData
+                {
+                    FlightId = flightOrder.FlightId,
+                    Username = string.IsNullOrEmpty(flightOrder.UserId) ? "Guest" : flightOrder.User.UserName,
+                    From = $"{flightOrder.Flight.SrcAirport.Country}, {flightOrder.Flight.SrcAirport.City}",
+                    To = $"{flightOrder.Flight.DestAirport.Country}, {flightOrder.Flight.DestAirport.City}",
+                    DepartureDate = flightOrder.Flight.DepartureTime.ToString("dd/MM/yyyy"),
+                    DepartmentName = flightOrder.Flight.DepartmentPrices.FirstOrDefault(price => price.DepartmentId.Equals(flightOrder.DepartmentId))?.Department?.Name,
+                    SeatsQuantity = flightOrder.SeatsQuantity
+                };
+
+                flightsOrdersData.Add(flightData);
+            }
+
+            return flightsOrdersData;
         }
 
         private int CalculateAverageOccupancyPercentage(FullyDetailedFight flight)
